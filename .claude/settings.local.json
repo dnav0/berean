@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx electron-builder:*)",
+      "Bash(npm run:*)",
+      "Bash(node node_modules/electron/install.js)",
+      "Bash(tasklist /FI \"IMAGENAME eq electron.exe\")",
+      "Bash(ps -W)",
+      "Bash(node -e ':*)",
+      "Bash(taskkill //F //IM electron.exe)",
+      "Bash(npx tsc:*)",
+      "Bash(npx electron-vite:*)"
+    ]
+  }
+}
