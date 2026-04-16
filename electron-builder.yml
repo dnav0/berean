@@ -35,7 +35,7 @@ mac:
   # For code signing (optional — set CSC_LINK and CSC_KEY_PASSWORD env vars)
   # identity: null  # uncomment to build unsigned on Mac
 dmg:
-  artifactName: ${name}-${version}.${ext}
+  artifactName: ${name}-${version}-${arch}.${ext}
 npmRebuild: false
 publish:
   provider: github
