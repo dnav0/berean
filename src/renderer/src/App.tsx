@@ -30,6 +30,8 @@ export default function App(): React.ReactElement {
   const [isDark, toggleDark] = useDarkMode()
   const [whatsNewOpen, setWhatsNewOpen] = useState(false)
   const [hasNew, setHasNew] = useState(hasUnseen)
+  const [translation, setTranslation] = useState('web')
+  const [verseVersion, setVerseVersion] = useState(0)
 
   const openWhatsNew = (): void => {
     setWhatsNewOpen(true)
@@ -59,6 +61,16 @@ export default function App(): React.ReactElement {
   }, [])
 
   useEffect(() => { refresh() }, [])
+
+  useEffect(() => {
+    window.api.getTranslation().then(({ translation }) => setTranslation(translation))
+  }, [])
+
+  const handleTranslationChange = async (newTranslation: string, esvApiKey?: string): Promise<void> => {
+    await window.api.setTranslation(newTranslation, esvApiKey)
+    setTranslation(newTranslation)
+    setVerseVersion(v => v + 1)
+  }
 
   const handleNewPassage = (bookName?: string): void => {
     setState(prev => ({
@@ -195,7 +207,7 @@ export default function App(): React.ReactElement {
     if (viewMode === 'reading' && selectedBibleBook) {
       return (
         <BookDetailPage
-          key={selectedBibleBook.id}
+          key={`${selectedBibleBook.id}-${verseVersion}`}
           bibleBook={selectedBibleBook}
           dbBook={selectedDbBook}
           onBack={() => setState(prev => ({ ...prev, selectedBookName: null }))}
@@ -208,7 +220,7 @@ export default function App(): React.ReactElement {
     if (viewMode === 'reading' && selectedPassage) {
       return (
         <ReadingMode
-          key={selectedPassage.id}
+          key={`${selectedPassage.id}-${verseVersion}`}
           passage={selectedPassage}
           onCapture={passageId => {
             const p = passages.find(p => p.id === passageId)
@@ -263,6 +275,8 @@ export default function App(): React.ReactElement {
         onToggleDark={toggleDark}
         hasNew={hasNew}
         onOpenWhatsNew={openWhatsNew}
+        translation={translation}
+        onTranslationChange={handleTranslationChange}
       />
       <div className="main-area">
         {renderMain()}

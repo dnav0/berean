@@ -2,6 +2,14 @@ import React, { useState, useEffect } from 'react'
 import { Book, Passage, ThematicEntry } from '../types'
 import AppLogo from './AppLogo'
 
+const TRANSLATIONS = [
+  { value: 'web', label: 'WEB', name: 'World English Bible' },
+  { value: 'kjv', label: 'KJV', name: 'King James Version' },
+  { value: 'bsb', label: 'BSB', name: 'Berean Standard Bible' },
+  { value: 'asv', label: 'ASV', name: 'American Standard Version' },
+  { value: 'esv', label: 'ESV', name: 'English Standard Version' },
+]
+
 interface SidebarProps {
   mode: 'capture' | 'reading'
   onModeChange: (mode: 'capture' | 'reading') => void
@@ -19,6 +27,8 @@ interface SidebarProps {
   onToggleDark?: () => void
   hasNew?: boolean
   onOpenWhatsNew?: () => void
+  translation?: string
+  onTranslationChange?: (translation: string, esvApiKey?: string) => Promise<void>
 }
 
 export default function Sidebar({
@@ -37,10 +47,42 @@ export default function Sidebar({
   isDark = false,
   onToggleDark,
   hasNew = false,
-  onOpenWhatsNew
+  onOpenWhatsNew,
+  translation = 'web',
+  onTranslationChange
 }: SidebarProps): React.ReactElement {
   const [expandedBooks, setExpandedBooks] = useState<Set<number>>(new Set())
   const [vaultPath, setVaultPath] = useState<string>('')
+  const [esvKey, setEsvKey] = useState('')
+  const [esvKeyDraft, setEsvKeyDraft] = useState('')
+  const [showEsvInput, setShowEsvInput] = useState(false)
+
+  useEffect(() => {
+    if (translation === 'esv') {
+      window.api.getTranslation().then(({ esvApiKey }) => {
+        setEsvKey(esvApiKey)
+        setEsvKeyDraft(esvApiKey)
+        setShowEsvInput(true)
+      })
+    } else {
+      setShowEsvInput(false)
+    }
+  }, [translation])
+
+  const handleTranslationSelect = (value: string): void => {
+    if (value === 'esv') {
+      setShowEsvInput(true)
+      onTranslationChange?.(value, esvKey)
+    } else {
+      setShowEsvInput(false)
+      onTranslationChange?.(value)
+    }
+  }
+
+  const handleEsvKeySave = (): void => {
+    setEsvKey(esvKeyDraft)
+    onTranslationChange?.('esv', esvKeyDraft)
+  }
 
   useEffect(() => {
     window.api.getVaultPath().then(setVaultPath)
@@ -207,6 +249,42 @@ export default function Sidebar({
         <button className="btn-new-passage" onClick={onNewPassage}>
           + New Passage
         </button>
+
+        {/* Translation picker */}
+        <div className="translation-row">
+          <span className="translation-label">Translation</span>
+          <select
+            className="translation-select"
+            value={translation}
+            onChange={e => handleTranslationSelect(e.target.value)}
+          >
+            {TRANSLATIONS.map(t => (
+              <option key={t.value} value={t.value} title={t.name}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {showEsvInput && (
+          <div className="esv-key-row">
+            <input
+              className="esv-key-input"
+              type="password"
+              placeholder="ESV API key…"
+              value={esvKeyDraft}
+              onChange={e => setEsvKeyDraft(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') handleEsvKeySave() }}
+            />
+            <button
+              className="esv-key-save-btn"
+              onClick={handleEsvKeySave}
+              disabled={!esvKeyDraft.trim()}
+            >
+              Save
+            </button>
+          </div>
+        )}
 
         {/* Vault location row */}
         <div className="vault-row">

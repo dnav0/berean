@@ -37,6 +37,8 @@ import Database from 'better-sqlite3'
 
 interface BereanSettings {
   vaultPath?: string
+  bibleTranslation?: string
+  esvApiKey?: string
 }
 
 function settingsPath(): string {
@@ -76,6 +78,26 @@ export function setVaultPath(newPath: string): void {
 /** True if the user has explicitly chosen a vault location. */
 export function isVaultConfigured(): boolean {
   return readSettings().vaultPath !== undefined
+}
+
+/** Returns the active Bible translation slug (default: 'web'). */
+export function getBibleTranslation(): string {
+  return readSettings().bibleTranslation ?? 'web'
+}
+
+/** Returns the user-supplied ESV API key (empty string if unset). */
+export function getEsvApiKey(): string {
+  return readSettings().esvApiKey ?? ''
+}
+
+/** Persist a new translation choice and optional ESV API key. */
+export function setBibleTranslation(translation: string, esvApiKey?: string): void {
+  const current = readSettings()
+  writeSettings({
+    ...current,
+    bibleTranslation: translation,
+    ...(esvApiKey !== undefined ? { esvApiKey } : {})
+  })
 }
 
 export function initVault(): void {

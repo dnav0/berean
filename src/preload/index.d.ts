@@ -50,6 +50,9 @@ declare global {
 
       getBibleVerse: (reference: string) => Promise<BiblePassage | null>
 
+      getTranslation: () => Promise<{ translation: string; esvApiKey: string }>
+      setTranslation: (translation: string, esvApiKey?: string) => Promise<void>
+
       getVaultPath: () => Promise<string>
       chooseVaultPath: () => Promise<string | null>
       openVaultFolder: () => Promise<void>

@@ -1400,6 +1400,85 @@ body {
 }
 .vault-change-btn:hover { border-color: #7F77DD; color: #7F77DD; background: rgba(127,119,221,0.05); }
 
+/* ─── Translation picker (sidebar footer) ───────────────────────────────────── */
+.translation-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.translation-label {
+  font-size: 11px;
+  color: #999;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.translation-select {
+  font-size: 12px;
+  font-weight: 500;
+  color: #444;
+  background: transparent;
+  border: 1px solid #DDD;
+  border-radius: 5px;
+  padding: 2px 6px;
+  cursor: pointer;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 5px center;
+  padding-right: 20px;
+}
+
+.translation-select:hover { border-color: #7F77DD; }
+.translation-select:focus { border-color: #7F77DD; box-shadow: 0 0 0 2px rgba(127,119,221,0.15); }
+
+.esv-key-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.esv-key-input {
+  flex: 1;
+  font-size: 11px;
+  padding: 4px 7px;
+  border: 1px solid #DDD;
+  border-radius: 5px;
+  background: transparent;
+  color: #444;
+  outline: none;
+  min-width: 0;
+}
+
+.esv-key-input:focus { border-color: #7F77DD; box-shadow: 0 0 0 2px rgba(127,119,221,0.15); }
+.esv-key-input::placeholder { color: #BBB; }
+
+.esv-key-save-btn {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border: 1px solid #DDD;
+  border-radius: 5px;
+  background: transparent;
+  color: #555;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.esv-key-save-btn:hover:not(:disabled) { border-color: #7F77DD; color: #7F77DD; }
+.esv-key-save-btn:disabled { opacity: 0.4; cursor: default; }
+
+body.dark .translation-select { color: #CCC; border-color: #444; }
+body.dark .translation-select:hover { border-color: #7F77DD; }
+body.dark .esv-key-input { color: #CCC; border-color: #444; }
+body.dark .esv-key-save-btn { color: #AAA; border-color: #444; }
+body.dark .esv-key-save-btn:hover:not(:disabled) { border-color: #7F77DD; color: #9D95E5; }
+
 /* ─── Version chip (sidebar footer) ─────────────────────────────────────────── */
 .wn-version-chip {
   display: inline-flex;

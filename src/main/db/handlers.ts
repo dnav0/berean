@@ -7,7 +7,10 @@ import {
   syncThemeToVault,
   renameThemeFile,
   getVaultPath,
-  setVaultPath
+  setVaultPath,
+  getBibleTranslation,
+  getEsvApiKey,
+  setBibleTranslation
 } from './vault'
 
 export function registerHandlers(db: Database.Database): void {
@@ -297,9 +300,12 @@ export function registerHandlers(db: Database.Database): void {
   // ─── Bible verse cache ──────────────────────────────────────────────────────
 
   ipcMain.handle('bible:getVerse', async (_e, reference: string) => {
+    const translation = getBibleTranslation()
     const key = reference.toLowerCase().trim()
 
-    const cached = db.prepare('SELECT * FROM BibleVerseCache WHERE reference = ?').get(key) as
+    const cached = db.prepare(
+      'SELECT * FROM BibleVerseCache WHERE reference = ? AND translation = ?'
+    ).get(key, translation) as
       | { reference: string; text: string; verses_json: string }
       | undefined
     if (cached) {
@@ -307,28 +313,64 @@ export function registerHandlers(db: Database.Database): void {
     }
 
     try {
-      const encoded = encodeURIComponent(reference)
-      const res = await fetch(`https://bible-api.com/${encoded}?translation=web`)
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      const data = await res.json() as {
-        reference: string
-        text: string
-        verses: Array<{ verse: number; text: string; book_name: string; chapter: number }>
+      let verses: Array<{ verse: number; text: string }>
+      let text: string
+      let canonicalReference: string
+
+      if (translation === 'esv') {
+        const apiKey = getEsvApiKey()
+        if (!apiKey) return null
+
+        const encoded = encodeURIComponent(reference)
+        const res = await fetch(
+          `https://api.esv.org/v3/passage/text/?q=${encoded}&include-verse-numbers=true&include-headings=false&include-footnotes=false&include-short-copyright=false`,
+          { headers: { Authorization: `Token ${apiKey}` } }
+        )
+        if (!res.ok) throw new Error(`ESV API HTTP ${res.status}`)
+        const data = await res.json() as {
+          canonical: string
+          passages: string[]
+        }
+
+        const passageText = (data.passages || []).join('\n')
+        verses = parseEsvVerses(passageText)
+        text = verses.map(v => v.text).join(' ')
+        canonicalReference = data.canonical || reference
+      } else {
+        const encoded = encodeURIComponent(reference)
+        const res = await fetch(`https://bible-api.com/${encoded}?translation=${translation}`)
+        if (!res.ok) throw new Error(`Bible API HTTP ${res.status}`)
+        const data = await res.json() as {
+          reference: string
+          text: string
+          verses: Array<{ verse: number; text: string; book_name: string; chapter: number }>
+        }
+
+        verses = (data.verses || []).map(v => ({ verse: v.verse, text: v.text.trim() }))
+        text = data.text?.trim() || verses.map(v => v.text).join(' ')
+        canonicalReference = data.reference
       }
 
-      const verses = (data.verses || []).map(v => ({ verse: v.verse, text: v.text.trim() }))
-      const text = data.text?.trim() || verses.map(v => v.text).join(' ')
-
       db.prepare(`
-        INSERT OR REPLACE INTO BibleVerseCache (reference, text, verses_json)
-        VALUES (?, ?, ?)
-      `).run(key, text, JSON.stringify(verses))
+        INSERT OR REPLACE INTO BibleVerseCache (reference, translation, text, verses_json)
+        VALUES (?, ?, ?, ?)
+      `).run(key, translation, text, JSON.stringify(verses))
 
-      return { reference: data.reference, text, verses }
+      return { reference: canonicalReference, text, verses }
     } catch (err) {
       console.error('Bible API error:', err)
       return null
     }
+  })
+
+  // ─── Translation settings ────────────────────────────────────────────────────
+
+  ipcMain.handle('settings:getTranslation', () => {
+    return { translation: getBibleTranslation(), esvApiKey: getEsvApiKey() }
+  })
+
+  ipcMain.handle('settings:setTranslation', (_e, translation: string, esvApiKey?: string) => {
+    setBibleTranslation(translation, esvApiKey)
   })
 
   // ─── Passage with all notes ──────────────────────────────────────────────────
@@ -346,4 +388,23 @@ export function registerHandlers(db: Database.Database): void {
 
     return { passage, sessions: result }
   })
+}
+
+/**
+ * Parse an ESV API passage string into verse objects.
+ * ESV marks verses with [N] inline, e.g. "[1] In the beginning..."
+ * Split on those markers and reconstruct a verse array.
+ */
+function parseEsvVerses(passageText: string): Array<{ verse: number; text: string }> {
+  const parts = passageText.split(/\[(\d+)\]/)
+  // After split with capture group: ['preamble', '1', 'text...', '2', 'text...', ...]
+  const verses: Array<{ verse: number; text: string }> = []
+  for (let i = 1; i < parts.length; i += 2) {
+    const verseNum = parseInt(parts[i], 10)
+    const text = (parts[i + 1] || '').trim().replace(/\n+/g, ' ')
+    if (!isNaN(verseNum) && text) {
+      verses.push({ verse: verseNum, text })
+    }
+  }
+  return verses
 }

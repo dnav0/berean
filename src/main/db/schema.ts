@@ -47,10 +47,39 @@ export function initSchema(db: Database.Database): void {
     );
 
     CREATE TABLE IF NOT EXISTS BibleVerseCache (
-      reference   TEXT PRIMARY KEY,
+      reference   TEXT NOT NULL,
+      translation TEXT NOT NULL DEFAULT 'web',
       text        TEXT NOT NULL,
       verses_json TEXT NOT NULL,
-      cached_at   TEXT NOT NULL DEFAULT (datetime('now'))
+      cached_at   TEXT NOT NULL DEFAULT (datetime('now')),
+      PRIMARY KEY (reference, translation)
     );
+  `)
+
+  migrateBibleVerseCacheIfNeeded(db)
+}
+
+/**
+ * One-time migration: if BibleVerseCache was created with the old single-column
+ * primary key (no translation column), rename it, recreate with the composite
+ * PK, copy existing rows as 'web', then drop the old table.
+ */
+function migrateBibleVerseCacheIfNeeded(db: Database.Database): void {
+  const cols = db.prepare('PRAGMA table_info(BibleVerseCache)').all() as Array<{ name: string }>
+  if (cols.some(c => c.name === 'translation')) return
+
+  db.exec(`
+    ALTER TABLE BibleVerseCache RENAME TO BibleVerseCache_old;
+    CREATE TABLE BibleVerseCache (
+      reference   TEXT NOT NULL,
+      translation TEXT NOT NULL DEFAULT 'web',
+      text        TEXT NOT NULL,
+      verses_json TEXT NOT NULL,
+      cached_at   TEXT NOT NULL DEFAULT (datetime('now')),
+      PRIMARY KEY (reference, translation)
+    );
+    INSERT INTO BibleVerseCache (reference, translation, text, verses_json, cached_at)
+      SELECT reference, 'web', text, verses_json, cached_at FROM BibleVerseCache_old;
+    DROP TABLE BibleVerseCache_old;
   `)
 }

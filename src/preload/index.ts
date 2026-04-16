@@ -54,6 +54,11 @@ const api = {
   // Bible
   getBibleVerse: (reference: string) => ipcRenderer.invoke('bible:getVerse', reference),
 
+  // Translation settings
+  getTranslation: () => ipcRenderer.invoke('settings:getTranslation'),
+  setTranslation: (translation: string, esvApiKey?: string) =>
+    ipcRenderer.invoke('settings:setTranslation', translation, esvApiKey),
+
   // Vault
   getVaultPath: () => ipcRenderer.invoke('vault:getPath'),
   chooseVaultPath: () => ipcRenderer.invoke('vault:choosePath'),
