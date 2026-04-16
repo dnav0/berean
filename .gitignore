@@ -72,5 +72,8 @@ coverage/
 *.temp
 .cache/
 
-# Claude Code (optional - keep if you want to preserve claude context)
-# .claude/
+# Claude Code — exclude all configuration and local files
+.claude/
+
+# Project documentation for Claude Code (internal use only)
+CLAUDE.md

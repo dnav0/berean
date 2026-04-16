@@ -10,7 +10,9 @@
       "Bash(node -e ':*)",
       "Bash(taskkill //F //IM electron.exe)",
       "Bash(npx tsc:*)",
-      "Bash(npx electron-vite:*)"
+      "Bash(npx electron-vite:*)",
+      "Bash(wc -l /c/Projects/Logos/src/**/*.ts /c/Projects/Logos/src/**/*.tsx)",
+      "mcp__Claude_Preview__preview_start"
     ]
   }
 }

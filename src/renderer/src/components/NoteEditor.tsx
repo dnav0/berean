@@ -415,6 +415,7 @@ export default function NoteEditor({
 
             {isFocused ? (
               <div
+                key="editor"
                 ref={el => {
                   if (el) {
                     elRefs.current.set(line.id, el)
@@ -445,6 +446,7 @@ export default function NoteEditor({
               />
             ) : (
               <div
+                key="rendered"
                 className="note-rendered"
                 onClick={() => onFocusChange(line.id)}
               >

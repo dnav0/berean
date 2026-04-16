@@ -1,19 +1,20 @@
-appId: com.logos.app
-productName: Logos
+appId: app.getberean.berean
+productName: Berean
 directories:
   buildResources: build
 files:
   - '!**/.vscode/*'
   - '!src/*'
   - '!electron.vite.config.{js,ts,mjs,cjs}'
-  - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
+  - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,CHANGELOG.md,README.md}'
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
   - '!{tsconfig.json,tsconfig.*}'
+  - '!berean-site/**'
 asarUnpack:
   - resources/**
   - node_modules/better-sqlite3/**
 win:
-  executableName: logos
+  executableName: berean
   target:
     - target: nsis
       arch:
@@ -24,14 +25,21 @@ nsis:
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
 mac:
+  executableName: Berean
+  category: public.app-category.productivity
   target:
     - target: dmg
       arch:
         - x64
         - arm64
+  # For code signing (optional — set CSC_LINK and CSC_KEY_PASSWORD env vars)
+  # identity: null  # uncomment to build unsigned on Mac
 dmg:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false
 publish:
-  provider: generic
-  url: https://example.com/auto-update
+  provider: github
+  owner: dnav0     # your GitHub username — update if different
+  repo: berean     # your repo name — update if different
+  # private: false is the default; releases are publicly downloadable
+  # so the installed app can auto-update with no tokens needed.

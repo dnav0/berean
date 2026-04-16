@@ -1,0 +1,58 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'   # triggers on v1.0.0, v1.0.1, etc.
+
+jobs:
+  build-mac:
+    name: Build macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies (skip native scripts)
+        run: npm install --ignore-scripts
+
+      - name: Install Electron binary
+        run: node node_modules/electron/install.js
+
+      - name: Install app native deps (prebuilt better-sqlite3)
+        run: npx electron-builder install-app-deps
+
+      - name: Build & publish (macOS DMG)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Code signing — leave empty for unsigned personal builds.
+          # To sign: add CSC_LINK (base64 .p12) and CSC_KEY_PASSWORD secrets.
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+        run: npm run release -- --mac
+
+  build-win:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies (skip native scripts)
+        run: npm install --ignore-scripts
+
+      - name: Install Electron binary
+        run: node node_modules/electron/install.js
+
+      - name: Install app native deps (prebuilt better-sqlite3)
+        run: npx electron-builder install-app-deps
+
+      - name: Build & publish (Windows NSIS)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run release -- --win

@@ -1,0 +1,209 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Dark mode — applied via body.dark
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Base ── */
+body.dark {
+  background: #14131A;
+  color: #ECEAE4;
+  scrollbar-color: #333 transparent;
+}
+
+/* ── Sidebar ── */
+body.dark .sidebar {
+  background: #100F16;
+  border-right-color: rgba(255,255,255,0.07);
+}
+body.dark .sidebar-footer { border-top-color: rgba(255,255,255,0.06); }
+body.dark .app-title { color: #ECEAE4; }
+body.dark .app-subtitle { color: #4A4850; }
+body.dark .mode-toggle { background: #0C0B12; }
+body.dark .mode-toggle-btn { color: #55535A; }
+body.dark .mode-toggle-btn.active {
+  background: #1E1C28;
+  color: #ECEAE4;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+body.dark .sidebar-section-label { color: #3A3840; }
+body.dark .sidebar-item { color: #8A8890; }
+body.dark .sidebar-item:hover { background: rgba(255,255,255,0.04); }
+body.dark .sidebar-item.active { background: rgba(127,119,221,0.15); color: #9D97E8; }
+body.dark .sidebar-scroll::-webkit-scrollbar-thumb { background: #2A2830; }
+body.dark .btn-new-passage { background: #6B64C0; }
+
+/* ── Main area ── */
+body.dark .main-area { background: #14131A; }
+
+/* ── Capture mode ── */
+body.dark .capture-left { border-right-color: rgba(255,255,255,0.06); }
+body.dark .capture-right { background: #100F16; }
+body.dark .capture-right::-webkit-scrollbar-thumb { background: #2A2830; }
+body.dark .passage-heading-wrap { border-bottom-color: rgba(255,255,255,0.06); }
+body.dark .passage-heading-input { color: #ECEAE4; }
+body.dark .passage-heading-input::placeholder { color: #30303A; }
+body.dark .passage-heading-hint { color: #30303A; }
+body.dark .notes-list::-webkit-scrollbar-thumb { background: #2A2830; }
+body.dark .note-richtext { color: #ECEAE4; }
+body.dark .note-richtext:empty::before { color: #30303A; }
+body.dark .note-input { color: #ECEAE4; }
+body.dark .note-input::placeholder { color: #30303A; }
+body.dark .note-bullet { color: #3A3840; }
+body.dark .capture-actions { border-top-color: rgba(255,255,255,0.06); }
+body.dark .btn-save-read { background: #6B64C0; }
+body.dark .btn-save-next { color: #9D97E8; border-color: rgba(127,119,221,0.3); }
+body.dark .btn-save-next:hover:not(:disabled) {
+  background: rgba(127,119,221,0.1);
+  border-color: #7F77DD;
+}
+
+/* ── Passage pane ── */
+body.dark .passage-pane-empty { color: #30303A; }
+body.dark .passage-pane-reference { color: #3A3840; }
+body.dark .verse-text { color: #8A8890; }
+body.dark .verse-number { color: #3A3840; }
+body.dark .passage-verse.highlighted { background: rgba(127,119,221,0.12); }
+body.dark .passage-verse.highlighted .verse-text { color: #ECEAE4; }
+
+/* ── Reading mode ── */
+body.dark .reading-layout::-webkit-scrollbar-thumb { background: #2A2830; }
+body.dark .reading-heading h1 { color: #ECEAE4; }
+body.dark .reading-meta { color: #3A3840; }
+body.dark .reading-verse-row:hover { background: rgba(255,255,255,0.03); }
+body.dark .reading-verse-row.highlighted { background: rgba(127,119,221,0.12); }
+body.dark .reading-note-card { color: #8A8890; background: rgba(255,255,255,0.03); }
+body.dark .reading-note-card:hover { background: rgba(255,255,255,0.05); }
+body.dark .reading-note-card.highlighted { background: rgba(127,119,221,0.09); }
+body.dark .verse-add-btn { background: #1E1C28; }
+body.dark .inline-note-input { color: #ECEAE4; border-bottom-color: rgba(255,255,255,0.1); }
+body.dark .inline-note-hint { color: #30303A; }
+
+/* ── Theme view ── */
+body.dark .theme-title-input { color: #ECEAE4; }
+body.dark .theme-content-input { color: #8A8890; }
+
+/* ── Empty / welcome states ── */
+body.dark .empty-state-title { color: #3A3840; }
+body.dark .empty-state-sub { color: #2E2C38; }
+body.dark .welcome-title { color: #ECEAE4; }
+body.dark .welcome-sub { color: #55535A; }
+body.dark .welcome-cta { background: #6B64C0; }
+
+/* ── Reference autocomplete ── */
+body.dark .ref-autocomplete-dropdown {
+  background: #1A1922;
+  border-color: rgba(255,255,255,0.08);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+body.dark .ref-autocomplete-item:hover,
+body.dark .ref-autocomplete-item.active { background: rgba(127,119,221,0.1); }
+body.dark .ref-ac-name { color: #ECEAE4; }
+body.dark .ref-ac-abbr { color: #3A3840; }
+
+/* ── @ tag dropdown ── */
+body.dark .tag-dropdown {
+  background: #1A1922;
+  border-color: rgba(255,255,255,0.08);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+body.dark .tag-dropdown-item { color: #8A8890; }
+body.dark .tag-dropdown-item:hover,
+body.dark .tag-dropdown-item.active { background: rgba(127,119,221,0.1); }
+
+/* ── Cross-ref hover card ── */
+body.dark .crossref-hover-card {
+  background: #1A1922;
+  border-color: rgba(255,255,255,0.08);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  color: #8A8890;
+}
+body.dark .crossref-hover-card .ref-label { color: #ECEAE4; }
+
+/* ── Bible library ── */
+body.dark .bible-library::-webkit-scrollbar-thumb { background: #2A2830; }
+body.dark .bible-library-title { color: #ECEAE4; }
+body.dark .bible-library-sub { color: #3A3840; }
+body.dark .bible-testament-label { color: #3A3840; border-bottom-color: rgba(255,255,255,0.05); }
+body.dark .bible-book-row:hover { background: rgba(255,255,255,0.03); }
+body.dark .bible-book-row.studied:hover { background: rgba(127,119,221,0.08); }
+body.dark .bible-book-name { color: #3A3840; }
+body.dark .bible-book-row.studied .bible-book-name { color: #ECEAE4; }
+body.dark .bible-passage-item { color: #55535A; }
+body.dark .bible-passage-sessions { color: #2E2C38; }
+
+/* ── Book detail page ── */
+body.dark .book-detail-header { border-bottom-color: rgba(255,255,255,0.06); }
+body.dark .book-detail-title { color: #ECEAE4; }
+body.dark .book-detail-meta { color: #3A3840; }
+body.dark .book-detail-back { color: #3A3840; }
+body.dark .chapter-selector-wrap { border-bottom-color: rgba(255,255,255,0.06); }
+body.dark .chapter-pill { border-color: rgba(255,255,255,0.07); color: #3A3840; }
+body.dark .chapter-pill:hover { background: rgba(255,255,255,0.04); color: #8A8890; }
+body.dark .book-detail-content::-webkit-scrollbar-thumb { background: #2A2830; }
+
+/* ── ConfirmDialog ── */
+body.dark .dialog-backdrop { background: rgba(0,0,0,0.55); }
+body.dark .dialog-card { background: #1A1922; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
+body.dark .dialog-title { color: #ECEAE4; }
+body.dark .dialog-message { color: #6A6870; }
+body.dark .dialog-btn-ghost { color: #6A6870; border-color: rgba(255,255,255,0.1); }
+body.dark .dialog-btn-ghost:hover { background: rgba(255,255,255,0.05); }
+
+/* ── Session editor ── */
+body.dark .session-editor-header { border-bottom-color: rgba(255,255,255,0.06); }
+body.dark .session-editor-title { color: #ECEAE4; }
+body.dark .session-editor-body::-webkit-scrollbar-thumb { background: #2A2830; }
+body.dark .se-note-card { color: #8A8890; background: rgba(255,255,255,0.03); }
+body.dark .se-note-card:hover { background: rgba(255,255,255,0.05); }
+body.dark .se-note-card.highlighted { background: rgba(127,119,221,0.09); }
+body.dark .se-icon-btn { color: #3A3840; }
+body.dark .se-icon-btn:hover { background: rgba(255,255,255,0.06); color: #8A8890; }
+body.dark .se-edit-input { color: #ECEAE4; border-bottom-color: rgba(127,119,221,0.3); }
+body.dark .se-add-input { color: #ECEAE4; border-bottom-color: rgba(255,255,255,0.08); }
+body.dark .se-add-input::placeholder { color: #30303A; }
+body.dark .se-delete-passage-btn { color: #3A3840; border-color: rgba(255,255,255,0.08); }
+body.dark .se-delete-passage-btn:hover { color: #E83D3D; border-color: #E83D3D; background: rgba(232,61,61,0.06); }
+
+/* ── Dark mode toggle button ── */
+.dark-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #BBB;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+  -webkit-app-region: no-drag;
+}
+.dark-mode-toggle:hover { background: rgba(0,0,0,0.06); color: #555; }
+body.dark .dark-mode-toggle { color: #3A3840; }
+body.dark .dark-mode-toggle:hover { background: rgba(255,255,255,0.06); color: #8A8890; }
+
+/* ── Vault row ── */
+body.dark .vault-path-btn { color: #3A3840; }
+body.dark .vault-path-btn:hover { background: rgba(255,255,255,0.05); color: #8A8890; }
+body.dark .vault-change-btn { color: #3A3840; border-color: rgba(255,255,255,0.08); }
+body.dark .vault-change-btn:hover { border-color: #7F77DD; color: #9D97E8; background: rgba(127,119,221,0.08); }
+
+/* ── Version chip ── */
+body.dark .wn-version-chip { color: #3A3840; }
+body.dark .wn-version-chip:hover { background: rgba(255,255,255,0.05); color: #8A8890; }
+
+/* ── What's New modal ── */
+body.dark .wn-modal {
+  background: #1A1828;
+  border-color: rgba(255,255,255,0.08);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+}
+body.dark .wn-header { border-bottom-color: rgba(255,255,255,0.07); }
+body.dark .wn-subtitle { color: #ECEAE4; }
+body.dark .wn-close { color: #3A3840; }
+body.dark .wn-close:hover { background: rgba(255,255,255,0.07); color: #8A8890; }
+body.dark .wn-version { color: #9D97E8; background: rgba(127,119,221,0.15); }
+body.dark .wn-notes li { color: #8A8890; }
+body.dark .dark-mode-toggle:hover { background: rgba(255,255,255,0.06); color: #8A8890; }

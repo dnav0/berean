@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Book, Passage, ThematicEntry } from '../types'
+import AppLogo from './AppLogo'
 
 interface SidebarProps {
   mode: 'capture' | 'reading'
@@ -14,6 +15,10 @@ interface SidebarProps {
   onNewPassage: () => void
   onNewTheme: () => void
   onEditPassage?: (passageId: number) => void
+  isDark?: boolean
+  onToggleDark?: () => void
+  hasNew?: boolean
+  onOpenWhatsNew?: () => void
 }
 
 export default function Sidebar({
@@ -28,9 +33,23 @@ export default function Sidebar({
   onSelectTheme,
   onNewPassage,
   onNewTheme,
-  onEditPassage
+  onEditPassage,
+  isDark = false,
+  onToggleDark,
+  hasNew = false,
+  onOpenWhatsNew
 }: SidebarProps): React.ReactElement {
   const [expandedBooks, setExpandedBooks] = useState<Set<number>>(new Set())
+  const [vaultPath, setVaultPath] = useState<string>('')
+
+  useEffect(() => {
+    window.api.getVaultPath().then(setVaultPath)
+  }, [])
+
+  const handleChooseVault = async (): Promise<void> => {
+    const chosen = await window.api.chooseVaultPath()
+    if (chosen) setVaultPath(chosen)
+  }
 
   const toggleBook = (bookId: number): void => {
     setExpandedBooks(prev => {
@@ -50,7 +69,38 @@ export default function Sidebar({
   return (
     <div className="sidebar">
       <div className="sidebar-header">
-        <div className="app-title">Logos</div>
+        <div className="app-title-row">
+          <AppLogo size={22} style={{ borderRadius: 5 }} />
+          <div className="app-title" style={{ flex: 1 }}>Berean</div>
+          {onToggleDark && (
+            <button
+              className="dark-mode-toggle"
+              onClick={onToggleDark}
+              title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {isDark ? (
+                /* Sun icon */
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="5"/>
+                  <line x1="12" y1="1" x2="12" y2="3"/>
+                  <line x1="12" y1="21" x2="12" y2="23"/>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                  <line x1="1" y1="12" x2="3" y2="12"/>
+                  <line x1="21" y1="12" x2="23" y2="12"/>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+              ) : (
+                /* Moon icon */
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+              )}
+            </button>
+          )}
+        </div>
         <div className="app-subtitle">personal study notes</div>
       </div>
 
@@ -157,6 +207,36 @@ export default function Sidebar({
         <button className="btn-new-passage" onClick={onNewPassage}>
           + New Passage
         </button>
+
+        {/* Vault location row */}
+        <div className="vault-row">
+          <button
+            className="vault-path-btn"
+            onClick={() => window.api.openVaultFolder()}
+            title={vaultPath}
+          >
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span className="vault-path-label">
+              {vaultPath ? vaultPath.split(/[\\/]/).pop() : 'Berean'}
+            </span>
+          </button>
+          <button
+            className="vault-change-btn"
+            onClick={handleChooseVault}
+            title="Change vault location"
+          >
+            Change
+          </button>
+        </div>
+
+        {onOpenWhatsNew && (
+          <button className="wn-version-chip" onClick={onOpenWhatsNew} title="What's new">
+            v{__APP_VERSION__}
+            {hasNew && <span className="wn-dot" />}
+          </button>
+        )}
       </div>
     </div>
   )

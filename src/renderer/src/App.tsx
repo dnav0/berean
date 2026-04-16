@@ -7,8 +7,10 @@ import BibleLibrary from './components/BibleLibrary'
 import BookDetailPage from './components/BookDetailPage'
 import SessionEditor from './components/SessionEditor'
 import ConfirmDialog from './components/ConfirmDialog'
+import { WhatsNew, hasUnseen, markSeen } from './components/WhatsNew'
 import { Book, Passage, ThematicEntry } from './types'
 import { BIBLE_BOOKS } from './utils/bibleBooks'
+import { useDarkMode } from './utils/useDarkMode'
 
 type ViewMode = 'capture' | 'reading'
 
@@ -25,6 +27,16 @@ interface AppState {
 }
 
 export default function App(): React.ReactElement {
+  const [isDark, toggleDark] = useDarkMode()
+  const [whatsNewOpen, setWhatsNewOpen] = useState(false)
+  const [hasNew, setHasNew] = useState(hasUnseen)
+
+  const openWhatsNew = (): void => {
+    setWhatsNewOpen(true)
+    markSeen()
+    setHasNew(false)
+  }
+
   const [state, setState] = useState<AppState>({
     books: [], passages: [], themes: [],
     selectedPassageId: null,
@@ -247,10 +259,16 @@ export default function App(): React.ReactElement {
         onNewPassage={() => handleNewPassage()}
         onNewTheme={handleNewTheme}
         onEditPassage={handleEditPassage}
+        isDark={isDark}
+        onToggleDark={toggleDark}
+        hasNew={hasNew}
+        onOpenWhatsNew={openWhatsNew}
       />
       <div className="main-area">
         {renderMain()}
       </div>
+
+      <WhatsNew isOpen={whatsNewOpen} onClose={() => setWhatsNewOpen(false)} />
 
       {/* Navigation guard: unsaved notes in capture mode */}
       <ConfirmDialog

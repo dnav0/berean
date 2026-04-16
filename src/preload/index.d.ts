@@ -49,6 +49,10 @@ declare global {
       updateTheme: (id: number, title: string, content: string) => Promise<ThematicEntry>
 
       getBibleVerse: (reference: string) => Promise<BiblePassage | null>
+
+      getVaultPath: () => Promise<string>
+      chooseVaultPath: () => Promise<string | null>
+      openVaultFolder: () => Promise<void>
     }
   }
 }

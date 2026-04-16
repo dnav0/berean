@@ -1,5 +1,5 @@
 {
-  "name": "logos",
+  "name": "berean",
   "version": "1.0.0",
   "description": "Personal Bible study notes",
   "main": "out/main/index.js",
@@ -8,12 +8,16 @@
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "package": "npm run build && electron-builder",
+    "package:mac": "npm run build && electron-builder --mac",
+    "package:win": "npm run build && electron-builder --win",
+    "release": "npm run build && electron-builder --publish always",
     "postinstall": "node node_modules/electron/install.js && electron-builder install-app-deps"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
-    "better-sqlite3": "^11.4.0"
+    "better-sqlite3": "^11.4.0",
+    "electron-updater": "^6.8.3"
   },
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^1.0.1",

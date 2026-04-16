@@ -1,0 +1,15 @@
+[
+  {
+    "version": "1.0.0",
+    "date": "2026-04-16",
+    "title": "Welcome to Berean",
+    "notes": [
+      "Bible study notes that stay with you — capture, read, and reflect",
+      "Passage capture with verse anchors, categories, and cross-references",
+      "Reading mode with inline verse text from the World English Bible",
+      "Thematic entries for freeform study notes",
+      "Obsidian-compatible Markdown vault at ~/Documents/Berean",
+      "Dark mode"
+    ]
+  }
+]

@@ -52,7 +52,12 @@ const api = {
   updateTheme: (id: number, title: string, content: string) => ipcRenderer.invoke('themes:update', id, title, content),
 
   // Bible
-  getBibleVerse: (reference: string) => ipcRenderer.invoke('bible:getVerse', reference)
+  getBibleVerse: (reference: string) => ipcRenderer.invoke('bible:getVerse', reference),
+
+  // Vault
+  getVaultPath: () => ipcRenderer.invoke('vault:getPath'),
+  chooseVaultPath: () => ipcRenderer.invoke('vault:choosePath'),
+  openVaultFolder: () => ipcRenderer.invoke('vault:openFolder')
 }
 
 if (process.contextIsolated) {
