@@ -41,5 +41,4 @@ publish:
   provider: github
   owner: dnav0     # your GitHub username — update if different
   repo: berean     # your repo name — update if different
-  # private: false is the default; releases are publicly downloadable
-  # so the installed app can auto-update with no tokens needed.
+  releaseType: release   # publish directly — skip draft state
