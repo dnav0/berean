@@ -38,12 +38,11 @@ body {
 
 .sidebar-header {
   padding: 20px 16px 12px;
-  padding-top: env(titlebar-area-height, 20px);
 }
 
-/* macOS inset traffic lights */
-@supports (-webkit-touch-callout: none) {
-  .sidebar-header { padding-top: 48px; }
+/* macOS — push content below the inset traffic light buttons */
+.platform-mac .sidebar-header {
+  padding-top: 44px;
 }
 
 .app-title-row {

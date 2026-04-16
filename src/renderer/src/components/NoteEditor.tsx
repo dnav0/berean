@@ -335,9 +335,10 @@ export default function NoteEditor({
       return
     }
 
-    if (e.key === 'Backspace') {
+    if (e.key === 'Backspace' && !e.metaKey && !e.altKey) {
       const text = getRawText(el)
       if (text === '' && lines.length > 1) {
+        // Empty line — delete it and focus the previous (or next) line
         e.preventDefault()
         const prevId = lines[idx - 1]?.id ?? lines[idx + 1]?.id
         onChange(lines.filter(l => l.id !== id))
@@ -353,16 +354,33 @@ export default function NoteEditor({
         }
         return
       }
+      // Non-empty line, cursor at position 0 — jump to end of previous line
+      // instead of letting the browser escape the contenteditable boundary
+      if (text !== '' && getRawCursorPos(el) === 0 && idx > 0) {
+        e.preventDefault()
+        const prevId = lines[idx - 1].id
+        onFocusChange(prevId)
+        setTimeout(() => {
+          const prevEl = elRefs.current.get(prevId)
+          if (prevEl) {
+            prevEl.focus()
+            setRawCursorPos(prevEl, getRawText(prevEl).length)
+          }
+        }, 0)
+        return
+      }
     }
 
-    if (e.key === 'ArrowUp' && idx > 0) {
+    // Only move focus between lines for plain arrow keys.
+    // Let Shift/Cmd/Alt+Arrow pass through for text selection and word/line jumps.
+    if (e.key === 'ArrowUp' && idx > 0 && !e.shiftKey && !e.metaKey && !e.altKey) {
       e.preventDefault()
       const prevId = lines[idx - 1].id
       onFocusChange(prevId)
       setTimeout(() => elRefs.current.get(prevId)?.focus(), 0)
       return
     }
-    if (e.key === 'ArrowDown' && idx < lines.length - 1) {
+    if (e.key === 'ArrowDown' && idx < lines.length - 1 && !e.shiftKey && !e.metaKey && !e.altKey) {
       e.preventDefault()
       const nextId = lines[idx + 1].id
       onFocusChange(nextId)
