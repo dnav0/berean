@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'   # triggers on v1.0.0, v1.0.1, etc.
 
+# Required for electron-builder to create and upload GitHub Releases
+permissions:
+  contents: write
+
 jobs:
   build-mac:
     name: Build macOS
