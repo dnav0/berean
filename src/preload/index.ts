@@ -60,6 +60,8 @@ const api = {
     ipcRenderer.invoke('settings:setTranslation', translation, esvApiKey),
 
   // Vault
+  isVaultConfigured: () => ipcRenderer.invoke('vault:isConfigured'),
+  confirmDefaultVault: () => ipcRenderer.invoke('vault:confirmDefault'),
   getVaultPath: () => ipcRenderer.invoke('vault:getPath'),
   chooseVaultPath: () => ipcRenderer.invoke('vault:choosePath'),
   openVaultFolder: () => ipcRenderer.invoke('vault:openFolder')

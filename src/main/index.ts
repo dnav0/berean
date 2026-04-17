@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, dialog, nativeImage } from 'electron'
+import { app, shell, BrowserWindow, nativeImage } from 'electron'
 import { join } from 'path'
 import { existsSync } from 'fs'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
@@ -6,28 +6,16 @@ import { autoUpdater } from 'electron-updater'
 import Database from 'better-sqlite3'
 import { initSchema } from './db/schema'
 import { registerHandlers } from './db/handlers'
-import { initVault, isVaultConfigured, setVaultPath } from './db/vault'
+import { initVault } from './db/vault'
+
+// Keep dev and production data completely separate.
+// In dev mode, userData goes to  …/Berean/__dev/  so test notes never
+// appear when running a packaged release on the same machine.
+if (!app.isPackaged) {
+  app.setPath('userData', join(app.getPath('userData'), '__dev'))
+}
 
 let db: Database.Database
-
-async function ensureVaultPath(): Promise<void> {
-  if (isVaultConfigured()) return
-
-  // First launch — ask the user where they want their notes vault.
-  // Default suggestion: ~/Documents/Berean
-  const defaultPath = join(app.getPath('documents'), 'Berean')
-  const result = await dialog.showOpenDialog({
-    title: 'Choose where Berean stores your notes',
-    message: 'Berean keeps your notes as plain Markdown files so you own your data.\nChoose a folder — it will work as an Obsidian vault.',
-    buttonLabel: 'Use this folder',
-    properties: ['openDirectory', 'createDirectory'],
-    defaultPath
-  })
-
-  // If the user cancels, fall back to the default path silently
-  const chosen = result.canceled ? defaultPath : result.filePaths[0]
-  setVaultPath(chosen)
-}
 
 function createDatabase(): void {
   const dbPath = join(app.getPath('userData'), 'berean.db')
@@ -140,7 +128,6 @@ app.whenReady().then(async () => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  await ensureVaultPath()
   createDatabase()
   createWindow()
   setupAutoUpdater()

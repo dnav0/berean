@@ -53,6 +53,8 @@ declare global {
       getTranslation: () => Promise<{ translation: string; esvApiKey: string }>
       setTranslation: (translation: string, esvApiKey?: string) => Promise<void>
 
+      isVaultConfigured: () => Promise<boolean>
+      confirmDefaultVault: () => Promise<string>
       getVaultPath: () => Promise<string>
       chooseVaultPath: () => Promise<string | null>
       openVaultFolder: () => Promise<void>

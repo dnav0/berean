@@ -1,6 +1,6 @@
-import { ipcMain, dialog, shell } from 'electron'
+import { app, ipcMain, dialog, shell } from 'electron'
+import { join } from 'path'
 import Database from 'better-sqlite3'
-import { initVault } from './vault'
 import {
   syncPassageToVault,
   deletePassageFile,
@@ -8,6 +8,8 @@ import {
   renameThemeFile,
   getVaultPath,
   setVaultPath,
+  initVault,
+  isVaultConfigured,
   getBibleTranslation,
   getEsvApiKey,
   setBibleTranslation
@@ -16,6 +18,15 @@ import {
 export function registerHandlers(db: Database.Database): void {
 
   // ─── Vault ──────────────────────────────────────────────────────────────────
+
+  ipcMain.handle('vault:isConfigured', () => isVaultConfigured())
+
+  ipcMain.handle('vault:confirmDefault', () => {
+    const defaultPath = join(app.getPath('documents'), 'Berean')
+    setVaultPath(defaultPath)
+    initVault()
+    return defaultPath
+  })
 
   ipcMain.handle('vault:getPath', () => getVaultPath())
 

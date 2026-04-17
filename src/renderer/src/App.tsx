@@ -7,6 +7,7 @@ import BibleLibrary from './components/BibleLibrary'
 import BookDetailPage from './components/BookDetailPage'
 import SessionEditor from './components/SessionEditor'
 import ConfirmDialog from './components/ConfirmDialog'
+import WelcomeScreen from './components/WelcomeScreen'
 import { WhatsNew, hasUnseen, markSeen } from './components/WhatsNew'
 import { Book, Passage, ThematicEntry } from './types'
 import { BIBLE_BOOKS } from './utils/bibleBooks'
@@ -28,6 +29,7 @@ interface AppState {
 
 export default function App(): React.ReactElement {
   const [isDark, toggleDark] = useDarkMode()
+  const [vaultReady, setVaultReady] = useState<boolean | null>(null) // null = checking
   const [whatsNewOpen, setWhatsNewOpen] = useState(false)
   const [hasNew, setHasNew] = useState(hasUnseen)
   const [translation, setTranslation] = useState('web')
@@ -60,7 +62,12 @@ export default function App(): React.ReactElement {
     setState(prev => ({ ...prev, books, passages, themes }))
   }, [])
 
-  useEffect(() => { refresh() }, [])
+  useEffect(() => {
+    window.api.isVaultConfigured().then(configured => {
+      setVaultReady(configured)
+      if (configured) refresh()
+    })
+  }, [])
 
   useEffect(() => {
     window.api.getTranslation().then(({ translation }) => setTranslation(translation))
@@ -252,6 +259,19 @@ export default function App(): React.ReactElement {
         initialReference={captureReference}
         onSaveRead={handleSaveRead}
         onSaveNext={handleSaveNext}
+      />
+    )
+  }
+
+  if (vaultReady === null) return <div className="app-layout" />
+
+  if (!vaultReady) {
+    return (
+      <WelcomeScreen
+        onReady={() => {
+          setVaultReady(true)
+          refresh()
+        }}
       />
     )
   }
