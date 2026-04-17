@@ -77,10 +77,6 @@ body.dark .verse-add-btn { background: #1E1C28; }
 body.dark .inline-note-input { color: #ECEAE4; border-bottom-color: rgba(255,255,255,0.1); }
 body.dark .inline-note-hint { color: #30303A; }
 
-/* ── Theme view ── */
-body.dark .theme-title-input { color: #ECEAE4; }
-body.dark .theme-content-input { color: #8A8890; }
-
 /* ── Empty / welcome states ── */
 body.dark .empty-state-title { color: #3A3840; }
 body.dark .empty-state-sub { color: #2E2C38; }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Book, Passage, ThematicEntry } from '../types'
+import { Book, Passage } from '../types'
 import AppLogo from './AppLogo'
 
 interface SidebarProps {
@@ -7,13 +7,9 @@ interface SidebarProps {
   onModeChange: (mode: 'capture' | 'reading') => void
   books: Book[]
   passages: Passage[]
-  themes: ThematicEntry[]
   selectedPassageId: number | null
-  selectedThemeId: number | null
   onSelectPassage: (passageId: number) => void
-  onSelectTheme: (themeId: number) => void
   onNewPassage: () => void
-  onNewTheme: () => void
   onEditPassage?: (passageId: number) => void
   isDark?: boolean
   onToggleDark?: () => void
@@ -27,13 +23,9 @@ export default function Sidebar({
   onModeChange,
   books,
   passages,
-  themes,
   selectedPassageId,
-  selectedThemeId,
   onSelectPassage,
-  onSelectTheme,
   onNewPassage,
-  onNewTheme,
   onEditPassage,
   isDark = false,
   onToggleDark,
@@ -165,30 +157,7 @@ export default function Sidebar({
           </div>
         )}
 
-        {themes.length > 0 && (
-          <div className="sidebar-section">
-            <div className="sidebar-section-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              Themes
-              <span
-                style={{ cursor: 'pointer', color: '#BBB', fontWeight: 400, letterSpacing: 0, textTransform: 'none', fontSize: 13 }}
-                onClick={onNewTheme}
-              >
-                +
-              </span>
-            </div>
-            {themes.map(t => (
-              <div
-                key={t.id}
-                className={`sidebar-item${t.id === selectedThemeId ? ' active' : ''}`}
-                onClick={() => onSelectTheme(t.id)}
-              >
-                {t.title || 'Untitled'}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {passages.length === 0 && themes.length === 0 && (
+        {passages.length === 0 && (
           <div style={{ padding: '20px 16px', color: '#CCC', fontSize: 12, lineHeight: 1.6 }}>
             Start by adding a passage below.
           </div>

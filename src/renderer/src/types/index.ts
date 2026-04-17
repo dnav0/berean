@@ -36,13 +36,6 @@ export interface Note {
   created_at: string
 }
 
-export interface ThematicEntry {
-  id: number
-  title: string
-  content: string
-  created_at: string
-}
-
 export interface BibleVerse {
   verse: number
   text: string

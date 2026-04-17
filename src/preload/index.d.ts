@@ -1,4 +1,4 @@
-import { Book, Passage, Session, Note, NoteWithPassageInfo, ThematicEntry, BiblePassage, PassageWithNotes } from '../renderer/src/types'
+import { Book, Passage, Session, Note, NoteWithPassageInfo, BiblePassage, PassageWithNotes } from '../renderer/src/types'
 
 declare global {
   interface Window {
@@ -43,10 +43,6 @@ declare global {
       deleteNote: (id: number) => Promise<void>
       deleteNoteAndCascade: (id: number) => Promise<{ deletedNoteId?: number; deletedSessionId?: number; deletedPassageId?: number; deletedBookId?: number }>
       deletePassageAll: (passageId: number) => Promise<{ deletedPassageId: number; deletedBookId?: number }>
-
-      getThemes: () => Promise<ThematicEntry[]>
-      createTheme: (title: string, content: string) => Promise<ThematicEntry>
-      updateTheme: (id: number, title: string, content: string) => Promise<ThematicEntry>
 
       getBibleVerse: (reference: string) => Promise<BiblePassage | null>
 

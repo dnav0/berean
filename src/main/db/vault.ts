@@ -4,7 +4,6 @@
  * Every note write to SQLite is mirrored to a human-readable .md file at:
  *   <vaultPath>/
  *     notes/{BookName}/{reference_label}.md   ← one file per passage
- *     themes/{title}.md                       ← one file per theme
  *
  * SQLite remains the primary store (all reads hit the DB).
  * The vault is a safety-net: plaintext, portable, Obsidian-compatible.
@@ -104,7 +103,6 @@ export function initVault(): void {
   try {
     const base = getVaultPath()
     mkdirSync(join(base, 'notes'), { recursive: true })
-    mkdirSync(join(base, 'themes'), { recursive: true })
   } catch (err) {
     console.error('[vault] initVault error:', err)
   }
@@ -122,10 +120,6 @@ function safeFilename(s: string): string {
 
 function passageFilepath(bookName: string, referenceLabel: string): string {
   return join(getVaultPath(), 'notes', bookName, safeFilename(referenceLabel) + '.md')
-}
-
-function themeFilepath(title: string): string {
-  return join(getVaultPath(), 'themes', safeFilename(title || 'Untitled') + '.md')
 }
 
 // ─── Passage vault operations ─────────────────────────────────────────────────
@@ -201,37 +195,3 @@ export function deletePassageFile(bookName: string, referenceLabel: string): voi
   }
 }
 
-// ─── Theme vault operations ───────────────────────────────────────────────────
-
-export function syncThemeToVault(title: string, content: string): void {
-  try {
-    const dir = join(getVaultPath(), 'themes')
-    mkdirSync(dir, { recursive: true })
-    const lines = [
-      '---',
-      `title: ${title || 'Untitled'}`,
-      `updated: ${new Date().toISOString()}`,
-      '---',
-      '',
-      content || '',
-      '',
-    ]
-    writeFileSync(themeFilepath(title), lines.join('\n'), 'utf8')
-  } catch (err) {
-    console.error('[vault] syncThemeToVault error:', err)
-  }
-}
-
-/**
- * Rename the theme file when the title changes.
- * Safe-deletes the old file before writing the new one.
- */
-export function renameThemeFile(oldTitle: string, newTitle: string, content: string): void {
-  try {
-    const oldFp = themeFilepath(oldTitle)
-    if (existsSync(oldFp)) unlinkSync(oldFp)
-    syncThemeToVault(newTitle, content)
-  } catch (err) {
-    console.error('[vault] renameThemeFile error:', err)
-  }
-}

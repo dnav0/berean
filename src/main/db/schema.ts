@@ -39,13 +39,6 @@ export function initSchema(db: Database.Database): void {
       created_at            TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
-    CREATE TABLE IF NOT EXISTS ThematicEntries (
-      id          INTEGER PRIMARY KEY AUTOINCREMENT,
-      title       TEXT NOT NULL,
-      content     TEXT NOT NULL DEFAULT '',
-      created_at  TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-
     CREATE TABLE IF NOT EXISTS BibleVerseCache (
       reference   TEXT NOT NULL,
       translation TEXT NOT NULL DEFAULT 'web',

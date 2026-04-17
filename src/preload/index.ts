@@ -46,11 +46,6 @@ const api = {
   deleteNoteAndCascade: (id: number) => ipcRenderer.invoke('notes:deleteAndCascade', id),
   deletePassageAll: (passageId: number) => ipcRenderer.invoke('passages:deleteAll', passageId),
 
-  // Themes
-  getThemes: () => ipcRenderer.invoke('themes:getAll'),
-  createTheme: (title: string, content: string) => ipcRenderer.invoke('themes:create', title, content),
-  updateTheme: (id: number, title: string, content: string) => ipcRenderer.invoke('themes:update', id, title, content),
-
   // Bible
   getBibleVerse: (reference: string) => ipcRenderer.invoke('bible:getVerse', reference),
 

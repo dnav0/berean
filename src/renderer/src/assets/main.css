@@ -744,39 +744,6 @@ body.dark .welcome-btn-secondary { border-color: #444; color: #AAA; }
   padding-top: 2px;
 }
 
-/* ─── Thematic entry view ───────────────────────────────────────────────────── */
-.theme-layout {
-  height: 100%;
-  overflow-y: auto;
-  padding: 40px;
-}
-
-.theme-title-input {
-  font-size: 24px;
-  font-weight: 700;
-  border: none;
-  background: transparent;
-  outline: none;
-  font-family: inherit;
-  color: #1A1A1A;
-  width: 100%;
-  margin-bottom: 20px;
-  letter-spacing: -0.4px;
-}
-
-.theme-content-input {
-  width: 100%;
-  border: none;
-  background: transparent;
-  outline: none;
-  font-family: inherit;
-  font-size: 14px;
-  color: #333;
-  line-height: 1.8;
-  resize: none;
-  min-height: 300px;
-}
-
 /* ─── Empty states ──────────────────────────────────────────────────────────── */
 .empty-state {
   display: flex;

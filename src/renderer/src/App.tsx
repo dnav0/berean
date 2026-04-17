@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback, useRef } from 'react'
 import Sidebar from './components/Sidebar'
 import CaptureMode, { CaptureModeHandle } from './components/CaptureMode'
 import ReadingMode from './components/ReadingMode'
-import ThemeView from './components/ThemeView'
 import BibleLibrary from './components/BibleLibrary'
 import BookDetailPage from './components/BookDetailPage'
 import SessionEditor from './components/SessionEditor'
@@ -10,7 +9,7 @@ import ConfirmDialog from './components/ConfirmDialog'
 import WelcomeScreen from './components/WelcomeScreen'
 import SettingsModal from './components/SettingsModal'
 import { WhatsNew, hasUnseen, markSeen } from './components/WhatsNew'
-import { Book, Passage, ThematicEntry } from './types'
+import { Book, Passage } from './types'
 import { BIBLE_BOOKS } from './utils/bibleBooks'
 import { useDarkMode } from './utils/useDarkMode'
 
@@ -19,9 +18,7 @@ type ViewMode = 'capture' | 'reading'
 interface AppState {
   books: Book[]
   passages: Passage[]
-  themes: ThematicEntry[]
   selectedPassageId: number | null
-  selectedThemeId: number | null
   selectedBookName: string | null
   sessionEditorPassageId: number | null
   captureReference: string
@@ -44,9 +41,8 @@ export default function App(): React.ReactElement {
   }
 
   const [state, setState] = useState<AppState>({
-    books: [], passages: [], themes: [],
+    books: [], passages: [],
     selectedPassageId: null,
-    selectedThemeId: null,
     selectedBookName: null,
     sessionEditorPassageId: null,
     captureReference: '',
@@ -56,12 +52,11 @@ export default function App(): React.ReactElement {
   const captureModeRef = useRef<CaptureModeHandle>(null)
 
   const refresh = useCallback(async () => {
-    const [books, passages, themes] = await Promise.all([
+    const [books, passages] = await Promise.all([
       window.api.getBooks(),
-      window.api.getPassages(),
-      window.api.getThemes()
+      window.api.getPassages()
     ])
-    setState(prev => ({ ...prev, books, passages, themes }))
+    setState(prev => ({ ...prev, books, passages }))
   }, [])
 
   useEffect(() => {
@@ -85,7 +80,6 @@ export default function App(): React.ReactElement {
     setState(prev => ({
       ...prev,
       selectedPassageId: null,
-      selectedThemeId: null,
       selectedBookName: null,
       sessionEditorPassageId: null,
       captureReference: bookName ? `${bookName} ` : '',
@@ -93,17 +87,10 @@ export default function App(): React.ReactElement {
     }))
   }
 
-  const handleNewTheme = async (): Promise<void> => {
-    const theme = await window.api.createTheme('Untitled Theme', '')
-    await refresh()
-    setState(prev => ({ ...prev, selectedThemeId: theme.id, selectedPassageId: null, selectedBookName: null, sessionEditorPassageId: null }))
-  }
-
   const handleSelectPassage = (passageId: number): void => {
     setState(prev => ({
       ...prev,
       selectedPassageId: passageId,
-      selectedThemeId: null,
       selectedBookName: null,
       sessionEditorPassageId: null,
       viewMode: 'reading'
@@ -115,14 +102,9 @@ export default function App(): React.ReactElement {
       ...prev,
       selectedBookName: bookName,
       selectedPassageId: null,
-      selectedThemeId: null,
       sessionEditorPassageId: null,
       viewMode: 'reading'
     }))
-  }
-
-  const handleSelectTheme = (themeId: number): void => {
-    setState(prev => ({ ...prev, selectedThemeId: themeId, selectedPassageId: null, selectedBookName: null, sessionEditorPassageId: null }))
   }
 
   const handleEditPassage = (passageId: number): void => {
@@ -130,7 +112,6 @@ export default function App(): React.ReactElement {
       ...prev,
       sessionEditorPassageId: passageId,
       selectedPassageId: null,
-      selectedThemeId: null,
       selectedBookName: null,
       viewMode: 'reading'
     }))
@@ -146,7 +127,6 @@ export default function App(): React.ReactElement {
     setState(prev => ({
       ...prev,
       selectedPassageId: null,
-      selectedThemeId: null,
       selectedBookName: null,
       sessionEditorPassageId: null,
       captureReference: nextRef || '',
@@ -174,15 +154,9 @@ export default function App(): React.ReactElement {
     setState(prev => ({ ...prev, viewMode: 'capture', captureReference: reference, selectedBookName: null, sessionEditorPassageId: null }))
   }
 
-  const handleThemeUpdate = async (id: number, title: string, content: string): Promise<void> => {
-    await window.api.updateTheme(id, title, content)
-    await refresh()
-  }
-
-  const { books, passages, themes, selectedPassageId, selectedThemeId, selectedBookName, sessionEditorPassageId, captureReference, viewMode } = state
+  const { books, passages, selectedPassageId, selectedBookName, sessionEditorPassageId, captureReference, viewMode } = state
 
   const selectedPassage = passages.find(p => p.id === selectedPassageId) || null
-  const selectedTheme   = themes.find(t => t.id === selectedThemeId) || null
   const selectedBibleBook = selectedBookName
     ? BIBLE_BOOKS.find(b => b.name === selectedBookName) || null
     : null
@@ -194,10 +168,6 @@ export default function App(): React.ReactElement {
     : null
 
   function renderMain(): React.ReactElement {
-    if (selectedTheme) {
-      return <ThemeView key={selectedTheme.id} theme={selectedTheme} onUpdate={handleThemeUpdate} />
-    }
-
     if (sessionEditorPassage) {
       return (
         <SessionEditor
@@ -285,13 +255,9 @@ export default function App(): React.ReactElement {
         onModeChange={handleModeChange}
         books={books}
         passages={passages}
-        themes={themes}
         selectedPassageId={selectedPassageId}
-        selectedThemeId={selectedThemeId}
         onSelectPassage={handleSelectPassage}
-        onSelectTheme={handleSelectTheme}
         onNewPassage={() => handleNewPassage()}
-        onNewTheme={handleNewTheme}
         onEditPassage={handleEditPassage}
         isDark={isDark}
         onToggleDark={toggleDark}

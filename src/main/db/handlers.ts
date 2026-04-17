@@ -4,8 +4,6 @@ import Database from 'better-sqlite3'
 import {
   syncPassageToVault,
   deletePassageFile,
-  syncThemeToVault,
-  renameThemeFile,
   getVaultPath,
   setVaultPath,
   initVault,
@@ -40,7 +38,7 @@ export function registerHandlers(db: Database.Database): void {
     if (result.canceled || result.filePaths.length === 0) return null
     const chosen = result.filePaths[0]
     setVaultPath(chosen)
-    initVault()          // create notes/ and themes/ subdirs in the new location
+    initVault()
     return chosen
   })
 
@@ -275,37 +273,6 @@ export function registerHandlers(db: Database.Database): void {
     if (remPassages > 0) return { deletedPassageId: passageId }
     db.prepare('DELETE FROM Books WHERE id = ?').run(passage.book_id)
     return { deletedPassageId: passageId, deletedBookId: passage.book_id }
-  })
-
-  // ─── Thematic Entries ───────────────────────────────────────────────────────
-
-  ipcMain.handle('themes:getAll', () => {
-    return db.prepare('SELECT * FROM ThematicEntries ORDER BY created_at DESC').all()
-  })
-
-  ipcMain.handle('themes:create', (_e, title: string, content: string) => {
-    const result = db.prepare('INSERT INTO ThematicEntries (title, content) VALUES (?, ?)').run(title, content)
-    const theme = db.prepare('SELECT * FROM ThematicEntries WHERE id = ?').get(result.lastInsertRowid) as { title: string; content: string } | undefined
-    if (theme) syncThemeToVault(theme.title, theme.content)
-    return theme
-  })
-
-  ipcMain.handle('themes:update', (_e, id: number, title: string, content: string) => {
-    // Get old title so we can rename the vault file if it changed
-    const old = db.prepare('SELECT title FROM ThematicEntries WHERE id = ?').get(id) as { title: string } | undefined
-    db.prepare('UPDATE ThematicEntries SET title = ?, content = ? WHERE id = ?').run(title, content, id)
-    const updated = db.prepare('SELECT * FROM ThematicEntries WHERE id = ?').get(id) as { title: string; content: string } | undefined
-
-    // Vault: rename if title changed, otherwise just overwrite
-    if (updated) {
-      if (old && old.title !== title) {
-        renameThemeFile(old.title, title, content)
-      } else {
-        syncThemeToVault(title, content)
-      }
-    }
-
-    return updated
   })
 
   // ─── Bible verse cache ──────────────────────────────────────────────────────
