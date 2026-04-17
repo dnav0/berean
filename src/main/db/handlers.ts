@@ -404,11 +404,9 @@ export function registerHandlers(db: Database.Database): void {
 /**
  * Parse an ESV API passage string into verse objects.
  * ESV marks verses with [N] inline, e.g. "[1] In the beginning..."
- * Split on those markers and reconstruct a verse array.
  */
 function parseEsvVerses(passageText: string): Array<{ verse: number; text: string }> {
   const parts = passageText.split(/\[(\d+)\]/)
-  // After split with capture group: ['preamble', '1', 'text...', '2', 'text...', ...]
   const verses: Array<{ verse: number; text: string }> = []
   for (let i = 1; i < parts.length; i += 2) {
     const verseNum = parseInt(parts[i], 10)
@@ -419,3 +417,4 @@ function parseEsvVerses(passageText: string): Array<{ verse: number; text: strin
   }
   return verses
 }
+

@@ -12,11 +12,11 @@ node_modules/
 .pnp
 .pnp.js
 
-# Build output
+# Build output (electron-vite → out/, electron-builder → dist/)
 out/
 dist/
 dist-ssr/
-build/
+# Note: build/ is intentionally NOT excluded — it contains icon assets for electron-builder
 
 # Editor directories and files
 .vscode/*
@@ -74,6 +74,7 @@ coverage/
 
 # Claude Code — exclude all configuration and local files
 .claude/
+.claude/settings.local.json
 
 # Project documentation for Claude Code (internal use only)
 CLAUDE.md

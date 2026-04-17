@@ -2,14 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { Book, Passage, ThematicEntry } from '../types'
 import AppLogo from './AppLogo'
 
-const TRANSLATIONS = [
-  { value: 'web', label: 'WEB', name: 'World English Bible' },
-  { value: 'kjv', label: 'KJV', name: 'King James Version' },
-  { value: 'bsb', label: 'BSB', name: 'Berean Standard Bible' },
-  { value: 'asv', label: 'ASV', name: 'American Standard Version' },
-  { value: 'esv', label: 'ESV', name: 'English Standard Version' },
-]
-
 interface SidebarProps {
   mode: 'capture' | 'reading'
   onModeChange: (mode: 'capture' | 'reading') => void
@@ -27,8 +19,7 @@ interface SidebarProps {
   onToggleDark?: () => void
   hasNew?: boolean
   onOpenWhatsNew?: () => void
-  translation?: string
-  onTranslationChange?: (translation: string, esvApiKey?: string) => Promise<void>
+  onOpenSettings?: () => void
 }
 
 export default function Sidebar({
@@ -48,50 +39,9 @@ export default function Sidebar({
   onToggleDark,
   hasNew = false,
   onOpenWhatsNew,
-  translation = 'web',
-  onTranslationChange
+  onOpenSettings
 }: SidebarProps): React.ReactElement {
   const [expandedBooks, setExpandedBooks] = useState<Set<number>>(new Set())
-  const [vaultPath, setVaultPath] = useState<string>('')
-  const [esvKey, setEsvKey] = useState('')
-  const [esvKeyDraft, setEsvKeyDraft] = useState('')
-  const [showEsvInput, setShowEsvInput] = useState(false)
-
-  useEffect(() => {
-    if (translation === 'esv') {
-      window.api.getTranslation().then(({ esvApiKey }) => {
-        setEsvKey(esvApiKey)
-        setEsvKeyDraft(esvApiKey)
-        setShowEsvInput(true)
-      })
-    } else {
-      setShowEsvInput(false)
-    }
-  }, [translation])
-
-  const handleTranslationSelect = (value: string): void => {
-    if (value === 'esv') {
-      setShowEsvInput(true)
-      onTranslationChange?.(value, esvKey)
-    } else {
-      setShowEsvInput(false)
-      onTranslationChange?.(value)
-    }
-  }
-
-  const handleEsvKeySave = (): void => {
-    setEsvKey(esvKeyDraft)
-    onTranslationChange?.('esv', esvKeyDraft)
-  }
-
-  useEffect(() => {
-    window.api.getVaultPath().then(setVaultPath)
-  }, [])
-
-  const handleChooseVault = async (): Promise<void> => {
-    const chosen = await window.api.chooseVaultPath()
-    if (chosen) setVaultPath(chosen)
-  }
 
   const toggleBook = (bookId: number): void => {
     setExpandedBooks(prev => {
@@ -250,71 +200,26 @@ export default function Sidebar({
           + New Passage
         </button>
 
-        {/* Translation picker */}
-        <div className="translation-row">
-          <span className="translation-label">Translation</span>
-          <select
-            className="translation-select"
-            value={translation}
-            onChange={e => handleTranslationSelect(e.target.value)}
-          >
-            {TRANSLATIONS.map(t => (
-              <option key={t.value} value={t.value} title={t.name}>
-                {t.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {showEsvInput && (
-          <div className="esv-key-row">
-            <input
-              className="esv-key-input"
-              type="password"
-              placeholder="ESV API key…"
-              value={esvKeyDraft}
-              onChange={e => setEsvKeyDraft(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') handleEsvKeySave() }}
-            />
-            <button
-              className="esv-key-save-btn"
-              onClick={handleEsvKeySave}
-              disabled={!esvKeyDraft.trim()}
-            >
-              Save
-            </button>
-          </div>
-        )}
-
-        {/* Vault location row */}
-        <div className="vault-row">
+        <div className="sidebar-footer-row">
           <button
-            className="vault-path-btn"
-            onClick={() => window.api.openVaultFolder()}
-            title={vaultPath}
+            className="sidebar-settings-btn"
+            onClick={onOpenSettings}
+            title="Settings"
           >
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
             </svg>
-            <span className="vault-path-label">
-              {vaultPath ? vaultPath.split(/[\\/]/).pop() : 'Berean'}
-            </span>
+            Settings
           </button>
-          <button
-            className="vault-change-btn"
-            onClick={handleChooseVault}
-            title="Change vault location"
-          >
-            Change
-          </button>
-        </div>
 
-        {onOpenWhatsNew && (
-          <button className="wn-version-chip" onClick={onOpenWhatsNew} title="What's new">
-            v{__APP_VERSION__}
-            {hasNew && <span className="wn-dot" />}
-          </button>
-        )}
+          {onOpenWhatsNew && (
+            <button className="wn-version-chip" onClick={onOpenWhatsNew} title="What's new">
+              v{__APP_VERSION__}
+              {hasNew && <span className="wn-dot" />}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )

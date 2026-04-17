@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1E3358"/>
+      <stop offset="100%" stop-color="#0E1E36"/>
+    </linearGradient>
+    <linearGradient id="pageLeftGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.97"/>
+      <stop offset="100%" stop-color="#E8EFF7" stop-opacity="0.93"/>
+    </linearGradient>
+    <linearGradient id="pageRightGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#D0DBE8" stop-opacity="0.88"/>
+      <stop offset="100%" stop-color="#BAC9D8" stop-opacity="0.82"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F0CC6E"/>
+      <stop offset="100%" stop-color="#C8932A"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="16" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <clipPath id="roundedRect">
+      <rect width="512" height="512" rx="110" ry="110"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="110" fill="url(#bgGrad)"/>
+
+  <!-- Ambient glow behind beacon -->
+  <circle cx="256" cy="108" r="48" fill="#D4A853" opacity="0.12" filter="url(#softGlow)"/>
+
+  <!-- Book group, centered vertically -->
+
+  <!-- Left page — curves gently outward like a real open book -->
+  <path d="M256 172
+           C 248 172, 200 174, 152 192
+           L 148 358
+           C 196 342, 246 342, 256 344
+           Z"
+        fill="url(#pageLeftGrad)"/>
+
+  <!-- Right page -->
+  <path d="M256 172
+           C 264 172, 312 174, 360 192
+           L 364 358
+           C 316 342, 266 342, 256 344
+           Z"
+        fill="url(#pageRightGrad)"/>
+
+  <!-- Bottom book edge / cover shadow -->
+  <path d="M148 358 C196 342 246 342 256 344 C266 342 316 342 364 358
+           L 364 365 C316 349 266 349 256 351 C246 349 196 349 148 365 Z"
+        fill="#C8932A" opacity="0.45"/>
+
+  <!-- Spine separator line -->
+  <line x1="256" y1="172" x2="256" y2="344" stroke="url(#goldGrad)" stroke-width="4.5" stroke-linecap="round"/>
+
+  <!-- Text lines — left page (4 lines, slight perspective angle) -->
+  <line x1="172" y1="225" x2="244" y2="219" stroke="#8AA3BE" stroke-width="9" stroke-linecap="round" opacity="0.45"/>
+  <line x1="172" y1="251" x2="244" y2="246" stroke="#8AA3BE" stroke-width="9" stroke-linecap="round" opacity="0.45"/>
+  <line x1="172" y1="277" x2="244" y2="273" stroke="#8AA3BE" stroke-width="9" stroke-linecap="round" opacity="0.45"/>
+  <line x1="172" y1="303" x2="224" y2="300" stroke="#8AA3BE" stroke-width="9" stroke-linecap="round" opacity="0.45"/>
+
+  <!-- Text lines — right page -->
+  <line x1="268" y1="219" x2="340" y2="225" stroke="#7A92A8" stroke-width="9" stroke-linecap="round" opacity="0.30"/>
+  <line x1="268" y1="246" x2="340" y2="251" stroke="#7A92A8" stroke-width="9" stroke-linecap="round" opacity="0.30"/>
+  <line x1="268" y1="273" x2="340" y2="277" stroke="#7A92A8" stroke-width="9" stroke-linecap="round" opacity="0.30"/>
+  <line x1="268" y1="300" x2="320" y2="303" stroke="#7A92A8" stroke-width="9" stroke-linecap="round" opacity="0.30"/>
+
+  <!-- Beacon / light — a glowing orb hovering above the book spine -->
+  <!-- Outer soft halo -->
+  <circle cx="256" cy="112" r="30" fill="#D4A853" opacity="0.18" filter="url(#softGlow)"/>
+  <!-- Mid ring -->
+  <circle cx="256" cy="112" r="20" fill="#D4A853" opacity="0.35"/>
+  <!-- Core -->
+  <circle cx="256" cy="112" r="12" fill="url(#goldGrad)" filter="url(#glow)"/>
+  <!-- Inner highlight -->
+  <circle cx="252" cy="108" r="4.5" fill="#FFF0B0" opacity="0.8"/>
+
+  <!-- Subtle light ray downward to spine — connects beacon to book -->
+  <line x1="256" y1="124" x2="256" y2="172" stroke="url(#goldGrad)" stroke-width="3" stroke-linecap="round" opacity="0.50"/>
+</svg>

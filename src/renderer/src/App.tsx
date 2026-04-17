@@ -8,6 +8,7 @@ import BookDetailPage from './components/BookDetailPage'
 import SessionEditor from './components/SessionEditor'
 import ConfirmDialog from './components/ConfirmDialog'
 import WelcomeScreen from './components/WelcomeScreen'
+import SettingsModal from './components/SettingsModal'
 import { WhatsNew, hasUnseen, markSeen } from './components/WhatsNew'
 import { Book, Passage, ThematicEntry } from './types'
 import { BIBLE_BOOKS } from './utils/bibleBooks'
@@ -34,6 +35,7 @@ export default function App(): React.ReactElement {
   const [hasNew, setHasNew] = useState(hasUnseen)
   const [translation, setTranslation] = useState('web')
   const [verseVersion, setVerseVersion] = useState(0)
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   const openWhatsNew = (): void => {
     setWhatsNewOpen(true)
@@ -295,14 +297,20 @@ export default function App(): React.ReactElement {
         onToggleDark={toggleDark}
         hasNew={hasNew}
         onOpenWhatsNew={openWhatsNew}
-        translation={translation}
-        onTranslationChange={handleTranslationChange}
+        onOpenSettings={() => setSettingsOpen(true)}
       />
       <div className="main-area">
         {renderMain()}
       </div>
 
       <WhatsNew isOpen={whatsNewOpen} onClose={() => setWhatsNewOpen(false)} />
+
+      <SettingsModal
+        isOpen={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        translation={translation}
+        onTranslationChange={handleTranslationChange}
+      />
 
       {/* Navigation guard: unsaved notes in capture mode */}
       <ConfirmDialog
