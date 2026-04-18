@@ -54,6 +54,10 @@ declare global {
       getVaultPath: () => Promise<string>
       chooseVaultPath: () => Promise<string | null>
       openVaultFolder: () => Promise<void>
+
+      onUpdateStatus: (cb: (payload: { status: 'idle' | 'checking' | 'downloading' | 'ready' | 'up-to-date' | 'error'; version?: string }) => void) => void
+      checkForUpdates: () => Promise<void>
+      quitAndInstall: () => Promise<void>
     }
   }
 }

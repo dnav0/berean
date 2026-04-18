@@ -1890,3 +1890,137 @@ body.dark .smodal-vault-desc { color: #666; }
   color: #7F77DD;
   font-weight: 700;
 }
+
+/* ─── Update indicator (sidebar footer) ─────────────────────────────────────── */
+.upd-area {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+@keyframes upd-spin { to { transform: rotate(360deg); } }
+.upd-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid rgba(0,0,0,0.12);
+  border-top-color: #999;
+  border-radius: 50%;
+  animation: upd-spin 0.7s linear infinite;
+}
+body.dark .upd-spinner {
+  border-color: rgba(255,255,255,0.12);
+  border-top-color: #888;
+}
+
+.upd-check {
+  display: inline-flex;
+  align-items: center;
+  color: #1D9E75;
+}
+
+.upd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+}
+.upd-btn-ready {
+  background: #E07B20;
+  color: #fff;
+}
+.upd-btn-ready:hover { background: #C96D18; }
+.upd-btn-error {
+  background: #D44;
+  color: #fff;
+}
+.upd-btn-error:hover { background: #BB2222; }
+
+/* Popover — position:fixed applied inline to escape sidebar overflow:hidden */
+.upd-popover {
+  width: 210px;
+  background: #fff;
+  border: 0.5px solid rgba(0,0,0,0.12);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.16);
+  padding: 12px 14px 10px;
+  z-index: 9999;
+}
+.upd-popover::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 6px;
+  background: #fff;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  border-top: none;
+}
+body.dark .upd-popover {
+  background: #2A2A2A;
+  border-color: rgba(255,255,255,0.1);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+body.dark .upd-popover::after {
+  background: #2A2A2A;
+}
+
+.upd-popover-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 3px;
+}
+body.dark .upd-popover-title { color: #EEE; }
+
+.upd-popover-sub {
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 10px;
+}
+body.dark .upd-popover-sub { color: #777; }
+
+.upd-popover-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.upd-popover-btn {
+  flex: 1;
+  padding: 5px 0;
+  border-radius: 5px;
+  border: none;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.upd-popover-btn-primary {
+  background: #E07B20;
+  color: #fff;
+}
+.upd-popover-btn-primary:hover { background: #C96D18; }
+.upd-popover-btn-ghost {
+  background: rgba(0,0,0,0.06);
+  color: #555;
+}
+.upd-popover-btn-ghost:hover { background: rgba(0,0,0,0.10); }
+body.dark .upd-popover-btn-ghost {
+  background: rgba(255,255,255,0.08);
+  color: #AAA;
+}
+body.dark .upd-popover-btn-ghost:hover { background: rgba(255,255,255,0.13); }
+
+/* Amber dot on version chip when update is ready */
+.wn-dot-update {
+  background: #E07B20;
+}

@@ -14,6 +14,7 @@ import { BIBLE_BOOKS } from './utils/bibleBooks'
 import { useDarkMode } from './utils/useDarkMode'
 
 type ViewMode = 'capture' | 'reading'
+type UpdateStatus = 'idle' | 'checking' | 'downloading' | 'ready' | 'up-to-date' | 'error'
 
 interface AppState {
   books: Book[]
@@ -33,6 +34,8 @@ export default function App(): React.ReactElement {
   const [translation, setTranslation] = useState('web')
   const [verseVersion, setVerseVersion] = useState(0)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [updateStatus, setUpdateStatus] = useState<UpdateStatus>('idle')
+  const [updateVersion, setUpdateVersion] = useState<string | undefined>(undefined)
 
   const openWhatsNew = (): void => {
     setWhatsNewOpen(true)
@@ -69,6 +72,21 @@ export default function App(): React.ReactElement {
   useEffect(() => {
     window.api.getTranslation().then(({ translation }) => setTranslation(translation))
   }, [])
+
+  useEffect(() => {
+    window.api.onUpdateStatus(({ status, version }) => {
+      setUpdateStatus(status as UpdateStatus)
+      if (version) setUpdateVersion(version)
+    })
+  }, [])
+
+  useEffect(() => {
+    if (updateStatus === 'up-to-date') {
+      const t = setTimeout(() => setUpdateStatus('idle'), 3000)
+      return () => clearTimeout(t)
+    }
+    return undefined
+  }, [updateStatus])
 
   const handleTranslationChange = async (newTranslation: string, esvApiKey?: string): Promise<void> => {
     await window.api.setTranslation(newTranslation, esvApiKey)
@@ -264,6 +282,10 @@ export default function App(): React.ReactElement {
         hasNew={hasNew}
         onOpenWhatsNew={openWhatsNew}
         onOpenSettings={() => setSettingsOpen(true)}
+        updateStatus={updateStatus}
+        updateVersion={updateVersion}
+        onCheckForUpdates={() => window.api.checkForUpdates()}
+        onQuitAndInstall={() => window.api.quitAndInstall()}
       />
       <div className="main-area">
         {renderMain()}

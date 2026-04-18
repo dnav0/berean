@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Book, Passage } from '../types'
 import AppLogo from './AppLogo'
+
+type UpdateStatus = 'idle' | 'checking' | 'downloading' | 'ready' | 'up-to-date' | 'error'
 
 interface SidebarProps {
   mode: 'capture' | 'reading'
@@ -16,6 +18,10 @@ interface SidebarProps {
   hasNew?: boolean
   onOpenWhatsNew?: () => void
   onOpenSettings?: () => void
+  updateStatus?: UpdateStatus
+  updateVersion?: string
+  onCheckForUpdates?: () => void
+  onQuitAndInstall?: () => void
 }
 
 export default function Sidebar({
@@ -31,9 +37,33 @@ export default function Sidebar({
   onToggleDark,
   hasNew = false,
   onOpenWhatsNew,
-  onOpenSettings
+  onOpenSettings,
+  updateStatus = 'idle',
+  updateVersion,
+  onCheckForUpdates,
+  onQuitAndInstall
 }: SidebarProps): React.ReactElement {
   const [expandedBooks, setExpandedBooks] = useState<Set<number>>(new Set())
+  const [popoverOpen, setPopoverOpen] = useState(false)
+  const [popoverPos, setPopoverPos] = useState<{ bottom: number; left: number } | null>(null)
+  const updBtnRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    if (updateStatus === 'ready') {
+      openPopover()
+    }
+  }, [updateStatus])
+
+  const openPopover = (): void => {
+    if (updBtnRef.current) {
+      const rect = updBtnRef.current.getBoundingClientRect()
+      const popoverWidth = 210
+      const centeredLeft = rect.left + rect.width / 2 - popoverWidth / 2
+      const left = Math.max(8, Math.min(window.innerWidth - popoverWidth - 8, centeredLeft))
+      setPopoverPos({ bottom: window.innerHeight - rect.top + 10, left })
+    }
+    setPopoverOpen(true)
+  }
 
   const toggleBook = (bookId: number): void => {
     setExpandedBooks(prev => {
@@ -183,11 +213,80 @@ export default function Sidebar({
           </button>
 
           {onOpenWhatsNew && (
-            <button className="wn-version-chip" onClick={onOpenWhatsNew} title="What's new">
-              v{__APP_VERSION__}
-              {hasNew && <span className="wn-dot" />}
-            </button>
+            <div className="upd-area" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              {/* Spinner: checking or downloading */}
+              {(updateStatus === 'checking' || updateStatus === 'downloading') && (
+                <span className="upd-spinner" title={updateStatus === 'checking' ? 'Checking for updates…' : 'Downloading update…'} />
+              )}
+
+              {/* Up-to-date checkmark */}
+              {updateStatus === 'up-to-date' && (
+                <span className="upd-check" title="Up to date">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </span>
+              )}
+
+              {/* Error */}
+              {updateStatus === 'error' && (
+                <button
+                  className="upd-btn upd-btn-error"
+                  title="Update check failed — click to retry"
+                  onClick={onCheckForUpdates}
+                >
+                  !
+                </button>
+              )}
+
+              <button className="wn-version-chip" onClick={onOpenWhatsNew} title={updateStatus === 'ready' ? `Update ready — v${updateVersion}` : "What's new"}>
+                v{__APP_VERSION__}
+                {hasNew && <span className="wn-dot" />}
+              </button>
+
+              {/* Update ready arrow — right of version chip */}
+              {updateStatus === 'ready' && (
+                <button
+                  ref={updBtnRef}
+                  className="upd-btn upd-btn-ready"
+                  title="Update ready — click to install"
+                  onClick={() => popoverOpen ? setPopoverOpen(false) : openPopover()}
+                >
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="17 11 12 6 7 11"/>
+                    <line x1="12" y1="6" x2="12" y2="18"/>
+                  </svg>
+                </button>
+              )}
+            </div>
           )}
+
+          {/* Popover — fixed position to escape sidebar overflow:hidden */}
+          {popoverOpen && updateStatus === 'ready' && popoverPos && (
+              <div
+                className="upd-popover"
+                style={{ position: 'fixed', bottom: popoverPos.bottom, left: popoverPos.left }}
+              >
+                <div className="upd-popover-title">
+                  {updateVersion ? `v${updateVersion} ready` : 'Update ready'}
+                </div>
+                <div className="upd-popover-sub">Restart to install the new version.</div>
+                <div className="upd-popover-actions">
+                  <button
+                    className="upd-popover-btn upd-popover-btn-primary"
+                    onClick={() => { setPopoverOpen(false); onQuitAndInstall?.() }}
+                  >
+                    Restart now
+                  </button>
+                  <button
+                    className="upd-popover-btn upd-popover-btn-ghost"
+                    onClick={() => setPopoverOpen(false)}
+                  >
+                    Maybe later
+                  </button>
+                </div>
+              </div>
+            )}
         </div>
       </div>
     </div>

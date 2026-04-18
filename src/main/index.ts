@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, nativeImage, dialog } from 'electron'
+import { app, shell, BrowserWindow, nativeImage, ipcMain } from 'electron'
 import { join } from 'path'
 import { existsSync } from 'fs'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
@@ -16,6 +16,7 @@ if (!app.isPackaged) {
 }
 
 let db: Database.Database
+let mainWindow: BrowserWindow | null = null
 
 function createDatabase(): void {
   const dbPath = join(app.getPath('userData'), 'berean.db')
@@ -25,7 +26,21 @@ function createDatabase(): void {
   initVault()
 }
 
+function sendUpdateStatus(payload: { status: string; version?: string }): void {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('updater:status', payload)
+  }
+}
+
 function setupAutoUpdater(): void {
+  // IPC handlers registered regardless of env so renderer calls never throw
+  ipcMain.handle('updater:checkNow', () => {
+    if (!is.dev) autoUpdater.checkForUpdates()
+  })
+  ipcMain.handle('updater:quitAndInstall', () => {
+    if (!is.dev) autoUpdater.quitAndInstall()
+  })
+
   // Only run updater in production
   if (is.dev) return
 
@@ -37,27 +52,25 @@ function setupAutoUpdater(): void {
   autoUpdater.autoDownload = true
   autoUpdater.autoInstallOnAppQuit = true
 
-  autoUpdater.on('update-available', () => {
-    // Download starts automatically; nothing to show yet
+  autoUpdater.on('checking-for-update', () => {
+    sendUpdateStatus({ status: 'checking' })
   })
 
-  autoUpdater.on('update-downloaded', () => {
-    dialog
-      .showMessageBox({
-        type: 'info',
-        title: 'Update ready',
-        message: 'A new version of Berean has been downloaded.',
-        detail: 'Restart the app to apply the update.',
-        buttons: ['Restart now', 'Later'],
-        defaultId: 0
-      })
-      .then(({ response }) => {
-        if (response === 0) autoUpdater.quitAndInstall()
-      })
+  autoUpdater.on('update-available', (info) => {
+    sendUpdateStatus({ status: 'downloading', version: info.version })
+  })
+
+  autoUpdater.on('update-not-available', () => {
+    sendUpdateStatus({ status: 'up-to-date' })
+  })
+
+  autoUpdater.on('update-downloaded', (info) => {
+    sendUpdateStatus({ status: 'ready', version: info.version })
   })
 
   autoUpdater.on('error', (err) => {
     console.error('Auto-updater error:', err)
+    sendUpdateStatus({ status: 'error' })
   })
 
   // Check once on startup, then every 4 hours
@@ -81,7 +94,7 @@ function resolveIcon(): Electron.NativeImage | undefined {
 function createWindow(): void {
   const icon = resolveIcon()
 
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1280,
     height: 860,
     minWidth: 960,
@@ -131,6 +144,11 @@ app.whenReady().then(async () => {
   createDatabase()
   createWindow()
   setupAutoUpdater()
+
+  // TEMP: simulate update-ready state for UI testing — remove before release
+  if (is.dev) {
+    setTimeout(() => sendUpdateStatus({ status: 'ready', version: '9.9.9' }), 2000)
+  }
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

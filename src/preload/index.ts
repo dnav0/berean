@@ -59,7 +59,14 @@ const api = {
   confirmDefaultVault: () => ipcRenderer.invoke('vault:confirmDefault'),
   getVaultPath: () => ipcRenderer.invoke('vault:getPath'),
   chooseVaultPath: () => ipcRenderer.invoke('vault:choosePath'),
-  openVaultFolder: () => ipcRenderer.invoke('vault:openFolder')
+  openVaultFolder: () => ipcRenderer.invoke('vault:openFolder'),
+
+  // Updater
+  onUpdateStatus: (cb: (payload: { status: string; version?: string }) => void) => {
+    ipcRenderer.on('updater:status', (_, payload) => cb(payload))
+  },
+  checkForUpdates: () => ipcRenderer.invoke('updater:checkNow'),
+  quitAndInstall: () => ipcRenderer.invoke('updater:quitAndInstall')
 }
 
 if (process.contextIsolated) {
