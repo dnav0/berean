@@ -36,8 +36,8 @@ mac:
       arch:
         - x64
         - arm64
-  # For code signing (optional — set CSC_LINK and CSC_KEY_PASSWORD env vars)
-  # identity: null  # uncomment to build unsigned on Mac
+  # For code signing, set CSC_LINK and CSC_KEY_PASSWORD env vars and remove the line below
+  identity: null  # unsigned build — replace with Developer ID signing for production
 dmg:
   artifactName: ${name}-${version}-${arch}.${ext}
 npmRebuild: false
