@@ -145,11 +145,6 @@ app.whenReady().then(async () => {
   createWindow()
   setupAutoUpdater()
 
-  // TEMP: simulate update-ready state for UI testing — remove before release
-  if (is.dev) {
-    setTimeout(() => sendUpdateStatus({ status: 'ready', version: '9.9.9' }), 2000)
-  }
-
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
