@@ -74,9 +74,10 @@ export default function App(): React.ReactElement {
   }, [])
 
   useEffect(() => {
-    window.api.onUpdateStatus(({ status, version }) => {
+    window.api.onUpdateStatus(({ status, version, error }) => {
       setUpdateStatus(status as UpdateStatus)
       if (version) setUpdateVersion(version)
+      if (error) console.error('[updater]', error)
     })
   }, [])
 

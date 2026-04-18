@@ -1895,7 +1895,7 @@ body.dark .smodal-vault-desc { color: #666; }
 .upd-area {
   display: flex;
   align-items: center;
-  position: relative;
+  gap: 4px;
 }
 
 @keyframes upd-spin { to { transform: rotate(360deg); } }
@@ -1933,6 +1933,14 @@ body.dark .upd-spinner {
   line-height: 1;
   padding: 0;
 }
+.upd-btn-refresh {
+  background: transparent;
+  color: #BBB;
+}
+.upd-btn-refresh:hover { background: rgba(0,0,0,0.06); color: #777; }
+body.dark .upd-btn-refresh { color: #555; }
+body.dark .upd-btn-refresh:hover { background: rgba(255,255,255,0.07); color: #999; }
+
 .upd-btn-ready {
   background: #E07B20;
   color: #fff;

@@ -70,7 +70,7 @@ function setupAutoUpdater(): void {
 
   autoUpdater.on('error', (err) => {
     console.error('Auto-updater error:', err)
-    sendUpdateStatus({ status: 'error' })
+    sendUpdateStatus({ status: 'error', error: err.message })
   })
 
   // Check once on startup, then every 4 hours

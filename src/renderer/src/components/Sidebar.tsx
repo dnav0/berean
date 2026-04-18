@@ -213,38 +213,44 @@ export default function Sidebar({
           </button>
 
           {onOpenWhatsNew && (
-            <div className="upd-area" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              {/* Spinner: checking or downloading */}
+            <div className="upd-area">
+              <button className="wn-version-chip" onClick={onOpenWhatsNew} title="What's new">
+                v{__APP_VERSION__}
+                {hasNew && <span className="wn-dot" />}
+              </button>
+
+              {/* Idle: manual check button */}
+              {updateStatus === 'idle' && (
+                <button className="upd-btn upd-btn-refresh" title="Check for updates" onClick={onCheckForUpdates}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="1 4 1 10 7 10"/>
+                    <path d="M3.51 15a9 9 0 1 0 .49-4.95"/>
+                  </svg>
+                </button>
+              )}
+
+              {/* Checking or downloading: spinner */}
               {(updateStatus === 'checking' || updateStatus === 'downloading') && (
                 <span className="upd-spinner" title={updateStatus === 'checking' ? 'Checking for updates…' : 'Downloading update…'} />
               )}
 
-              {/* Up-to-date checkmark */}
+              {/* Up-to-date: checkmark */}
               {updateStatus === 'up-to-date' && (
                 <span className="upd-check" title="Up to date">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="20 6 9 17 4 12"/>
                   </svg>
                 </span>
               )}
 
-              {/* Error */}
+              {/* Error: retry button */}
               {updateStatus === 'error' && (
-                <button
-                  className="upd-btn upd-btn-error"
-                  title="Update check failed — click to retry"
-                  onClick={onCheckForUpdates}
-                >
+                <button className="upd-btn upd-btn-error" title="Update check failed — click to retry" onClick={onCheckForUpdates}>
                   !
                 </button>
               )}
 
-              <button className="wn-version-chip" onClick={onOpenWhatsNew} title={updateStatus === 'ready' ? `Update ready — v${updateVersion}` : "What's new"}>
-                v{__APP_VERSION__}
-                {hasNew && <span className="wn-dot" />}
-              </button>
-
-              {/* Update ready arrow — right of version chip */}
+              {/* Ready: install button */}
               {updateStatus === 'ready' && (
                 <button
                   ref={updBtnRef}
