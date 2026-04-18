@@ -388,7 +388,7 @@ body.dark .welcome-btn-secondary { border-color: #444; color: #AAA; }
 
 .note-input::placeholder { color: #CCC; }
 
-/* Rich contenteditable note line (focused state) */
+/* Contenteditable note line (focused state) */
 .note-richtext {
   flex: 1;
   border: none;
@@ -403,16 +403,16 @@ body.dark .welcome-btn-secondary { border-color: #444; color: #AAA; }
   white-space: pre-wrap;
   word-break: break-word;
   cursor: text;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
-/* Placeholder via CSS attr() on empty contenteditable */
 .note-richtext:empty::before {
   content: attr(data-placeholder);
   color: #CCC;
   pointer-events: none;
 }
 
-/* Pills inside the editable area behave as atomic units */
 .note-richtext [contenteditable="false"] {
   cursor: text;
   user-select: none;

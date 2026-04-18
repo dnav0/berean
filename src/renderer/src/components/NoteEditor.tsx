@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useLayoutEffect, useCallback, useState } from 'react'
+import React, { useRef, useEffect, useCallback, useState } from 'react'
 import { NoteCategory } from '../types'
 import { parseNoteLine } from '../utils/noteParser'
 
@@ -39,8 +39,7 @@ function filterTags(q: string): TagOption[] {
 
 // ─── contenteditable DOM helpers ─────────────────────────────────────────────
 
-/** Extract the raw text from a rich contenteditable div.
- *  Pill spans (contenteditable=false) expose their original token via data-raw. */
+/** Extract the raw text from a rich contenteditable div. */
 function getRawText(el: HTMLElement): string {
   let s = ''
   for (const n of el.childNodes) {
@@ -55,7 +54,7 @@ function getRawText(el: HTMLElement): string {
   return s
 }
 
-/** Get cursor position as an offset into the raw text string. */
+/** Get cursor position as a raw-text offset. */
 function getRawCursorPos(el: HTMLElement): number {
   const sel = window.getSelection()
   if (!sel?.rangeCount) return 0
@@ -63,12 +62,10 @@ function getRawCursorPos(el: HTMLElement): number {
   let pos = 0
 
   for (const child of Array.from(el.childNodes)) {
-    // Cursor is inside this child (only possible for text nodes)
     if (child === range.startContainer || child.contains(range.startContainer)) {
       pos += child.nodeType === Node.TEXT_NODE ? range.startOffset : 0
       return pos
     }
-    // Accumulate this child's raw length
     if (child.nodeType === Node.TEXT_NODE) {
       pos += child.textContent?.length ?? 0
     } else if ((child as HTMLElement).tagName !== 'BR') {
@@ -76,7 +73,6 @@ function getRawCursorPos(el: HTMLElement): number {
     }
   }
 
-  // Cursor is positioned at el itself (between children), e.g. before/after a pill
   if (range.startContainer === el) {
     let count = 0
     for (let i = 0; i < range.startOffset; i++) {
@@ -94,7 +90,7 @@ function getRawCursorPos(el: HTMLElement): number {
   return pos
 }
 
-/** Restore cursor to a given raw-text offset after re-rendering. */
+/** Place a collapsed cursor at a raw-text offset. */
 function setRawCursorPos(el: HTMLElement, target: number): void {
   const sel = window.getSelection()
   if (!sel) return
@@ -111,7 +107,6 @@ function setRawCursorPos(el: HTMLElement, target: number): void {
       if (child.nodeType === Node.TEXT_NODE) {
         range.setStart(child, Math.min(rem, child.textContent?.length ?? 0))
       } else {
-        // pill span — cursor goes before (rem=0) or after (rem>0)
         rem <= 0 ? range.setStartBefore(child) : range.setStartAfter(child)
       }
       range.collapse(true)
@@ -122,44 +117,58 @@ function setRawCursorPos(el: HTMLElement, target: number): void {
     rem -= len
   }
 
-  // Past end of all content
   range.setStart(el, el.childNodes.length)
   range.collapse(true)
   sel.removeAllRanges()
   sel.addRange(range)
 }
 
-/** Re-render a contenteditable div with inline pill spans.
- *  Skips the DOM write if content hasn't changed, to preserve cursor. */
-function renderRich(el: HTMLElement, text: string): void {
+/**
+ * Re-render a contenteditable div with inline pill spans.
+ * Skips the DOM write when serialised content is identical.
+ * Returns true if the DOM was actually modified.
+ *
+ * cursorPos: when provided, any token whose end offset equals the cursor is
+ * rendered as plain text instead of a pill — the user may still be typing it.
+ */
+function renderRich(el: HTMLElement, text: string, cursorPos?: number): boolean {
   const { segments } = parseNoteLine(text)
 
   const frag = document.createDocumentFragment()
+  let charPos = 0
   for (const seg of segments) {
-    if (seg.type === 'plain') {
+    if (seg.type === 'text') {
       if (seg.raw) frag.appendChild(document.createTextNode(seg.raw))
     } else {
-      const span = document.createElement('span')
-      span.contentEditable = 'false'
-      span.dataset.raw = seg.raw
-      if (seg.type === 'verse-anchor') span.className = 'pill-verse'
-      else if (seg.type === 'tag') span.className = `pill-tag-${seg.data?.category ?? 'observation'}`
-      else if (seg.type === 'cross-ref') span.className = 'pill-crossref'
-      span.textContent = seg.display
-      frag.appendChild(span)
+      const tokenEnd = charPos + seg.raw.length
+      // Cursor is right at the end of this token → user may still be typing,
+      // so render it as plain text rather than a pill.
+      if (cursorPos !== undefined && cursorPos === tokenEnd) {
+        frag.appendChild(document.createTextNode(seg.raw))
+      } else {
+        const span = document.createElement('span')
+        span.contentEditable = 'false'
+        span.dataset.raw = seg.raw
+        if (seg.type === 'verse-anchor') span.className = 'pill-verse'
+        else if (seg.type === 'tag') span.className = `pill-tag-${seg.data?.category ?? 'observation'}`
+        else if (seg.type === 'cross-ref') span.className = 'pill-crossref'
+        span.textContent = seg.display
+        frag.appendChild(span)
+      }
     }
+    charPos += seg.raw.length
   }
 
-  // Bail out if the serialised representation is identical (avoids cursor jump)
   const serialise = (node: HTMLElement | DocumentFragment): string =>
     Array.from(node.childNodes)
       .map(n => n.nodeType === Node.TEXT_NODE ? n.textContent : (n as HTMLElement).outerHTML)
       .join('')
 
-  if (serialise(el) === serialise(frag as unknown as HTMLElement)) return
+  if (serialise(el) === serialise(frag as unknown as HTMLElement)) return false
 
   while (el.firstChild) el.removeChild(el.firstChild)
   el.appendChild(frag)
+  return true
 }
 
 // ─── RenderedLine (unfocused view with cross-ref hover) ───────────────────────
@@ -235,19 +244,6 @@ export default function NoteEditor({
   const filteredTags = tagDropdown ? filterTags(tagDropdown.query) : []
   const hasDropdown = filteredTags.length > 0 && tagDropdown !== null
 
-  // When the parent updates text for the focused line (e.g. after tag insertion),
-  // sync it to the DOM without resetting the cursor.
-  useLayoutEffect(() => {
-    if (!focusedLineId) return
-    const el = elRefs.current.get(focusedLineId)
-    if (!el || document.activeElement !== el) return
-    const line = lines.find(l => l.id === focusedLineId)
-    if (!line) return
-    const cur = getRawCursorPos(el)
-    renderRich(el, line.text)
-    setRawCursorPos(el, cur)
-  }, [lines, focusedLineId])
-
   // ── tag selection ──────────────────────────────────────────────────────────
   const selectTag = useCallback((tag: TagOption) => {
     if (!tagDropdown) return
@@ -264,7 +260,6 @@ export default function NoteEditor({
     setTagDropdown(null)
     onCursorLine(parseNoteLine(newText))
 
-    // Imperatively update the focused contenteditable and reposition cursor
     setTimeout(() => {
       const el = elRefs.current.get(lineId)
       if (el) {
@@ -276,20 +271,21 @@ export default function NoteEditor({
   }, [tagDropdown, lines, onChange, onCursorLine])
 
   // ── input handler ──────────────────────────────────────────────────────────
+  // Note: no useLayoutEffect — handleInput and selectTag own the DOM directly.
+  // setRawCursorPos is only called when renderRich actually rewrote the DOM
+  // (a token became a pill or a pill was deleted). For plain-text changes the
+  // browser already placed the cursor correctly, so we leave it alone.
   const handleInput = useCallback((e: React.FormEvent<HTMLDivElement>, id: string) => {
     const el = e.currentTarget
     const cur = getRawCursorPos(el)
     const text = getRawText(el)
 
-    // Re-render with inline formatting
-    renderRich(el, text)
-    // Restore cursor to same raw position
-    setRawCursorPos(el, cur)
+    const modified = renderRich(el, text, cur)
+    if (modified) setRawCursorPos(el, cur)
 
     onChange(lines.map(l => l.id === id ? { ...l, text } : l))
     onCursorLine(parseNoteLine(text))
 
-    // Detect @ pattern before cursor for the dropdown
     const before = text.slice(0, cur)
     const m = /@(\w*)$/.exec(before)
     if (m) {
@@ -336,9 +332,14 @@ export default function NoteEditor({
     }
 
     if (e.key === 'Backspace' && !e.metaKey && !e.altKey) {
+      // Non-collapsed selection: let the browser delete it; handleInput syncs state.
+      const sel = window.getSelection()
+      if (sel && sel.rangeCount > 0 && !sel.getRangeAt(0).collapsed) return
+
       const text = getRawText(el)
+
       if (text === '' && lines.length > 1) {
-        // Empty line — delete it and focus the previous (or next) line
+        // Empty line → remove it and move focus
         e.preventDefault()
         const prevId = lines[idx - 1]?.id ?? lines[idx + 1]?.id
         onChange(lines.filter(l => l.id !== id))
@@ -354,8 +355,8 @@ export default function NoteEditor({
         }
         return
       }
-      // Non-empty line, cursor at position 0 — jump to end of previous line
-      // instead of letting the browser escape the contenteditable boundary
+
+      // Cursor at position 0 on a non-empty line → jump to end of previous line
       if (text !== '' && getRawCursorPos(el) === 0 && idx > 0) {
         e.preventDefault()
         const prevId = lines[idx - 1].id
@@ -371,8 +372,8 @@ export default function NoteEditor({
       }
     }
 
-    // Only move focus between lines for plain arrow keys.
-    // Let Shift/Cmd/Alt+Arrow pass through for text selection and word/line jumps.
+    // Plain ArrowUp/Down navigate between bullet lines.
+    // Shift/Cmd/Alt combos pass through for selection and word jumps.
     if (e.key === 'ArrowUp' && idx > 0 && !e.shiftKey && !e.metaKey && !e.altKey) {
       e.preventDefault()
       const prevId = lines[idx - 1].id
@@ -437,7 +438,6 @@ export default function NoteEditor({
                 ref={el => {
                   if (el) {
                     elRefs.current.set(line.id, el)
-                    // On first mount: render content and move focus to this line
                     if (!el.dataset.init) {
                       el.dataset.init = '1'
                       renderRich(el, line.text)
